@@ -48,14 +48,17 @@ export function bootstrap({ persist = false } = {}) {
   const validation = renderBanner(bannerNode, config);
   validation.errors.forEach((message) => log('warn', message));
 
+  // Re-read the cookie jar: persistence above may have just written to it.
+  const cookiesNow = parseCookies(document.cookie);
+
   renderInspector(inspectorNode, {
     params,
     clickid,
     source,
-    cookieValue: cookies[CLICKID_COOKIE] ?? '',
+    cookieValue: cookiesNow[CLICKID_COOKIE] ?? '',
     referrer: document.referrer,
     href: window.location.href,
   });
 
-  return Object.freeze({ config, params, clickid, source, cookies, validation, log });
+  return Object.freeze({ config, params, clickid, source, cookies: cookiesNow, validation, log });
 }

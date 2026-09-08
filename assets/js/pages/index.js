@@ -12,9 +12,7 @@ import { ctaLink, navLink } from '../cta.js';
 const page = bootstrap({ persist: true });
 const { config, params, clickid, log } = page;
 
-if (config.universalScript.trim() === '') {
-  log('warn', 'No universal script pasted — this visit will not be recorded as a click in RedTrack.');
-} else {
+if (config.universalScript.trim() !== '') {
   const result = injectScript(document, config.universalScript, {
     onLoad: (src) => log('ok', 'Universal script loaded.', src),
     onError: (message) => log('error', message),
@@ -24,7 +22,6 @@ if (config.universalScript.trim() === '') {
 }
 
 const passThrough = pickPassThrough(params);
-
 
 mount(document.getElementById('cta-area'), [
   ctaLink({

@@ -1,0 +1,11 @@
+{
+  "name": "redtrack-test-lp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static test harness for verifying RedTrack click tracking, conversions and postbacks.",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT"
+}

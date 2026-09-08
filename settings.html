@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>RedTrack test — settings</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%234d8dff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/css/base.css">
+</head>
+<body>
+  <header class="top">
+    <h1>RedTrack test harness — settings</h1>
+    <p>Stored in this browser only, under <code>localStorage</code>. Nothing is sent anywhere.</p>
+    <nav class="pages">
+      <a href="./index.html">Landing</a>
+      <a href="./preclick.html">Pre-lander</a>
+      <a href="./thankyou.html">Conversion</a>
+      <a href="./settings.html" aria-current="page">Settings</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="save-status"></div>
+
+    <section class="card">
+      <h2>Configuration</h2>
+      <p class="lede">Find these values in your RedTrack account. Nothing here is validated against RedTrack until you actually run a test.</p>
+
+      <form class="grid" id="settings-form">
+        <label>
+          Tracking domain
+          <span class="hint">Your dedicated RedTrack domain, host only &mdash; e.g. <code>track.example.com</code>. The scheme is stripped on save.</span>
+          <input name="trackingDomain" type="text" autocomplete="off" placeholder="track.example.com">
+        </label>
+
+        <label>
+          Campaign ID (cmpid)
+          <span class="hint">From the campaign's tracking link in RedTrack.</span>
+          <input name="campaignId" type="text" autocomplete="off">
+        </label>
+
+        <label>
+          Offer URL
+          <span class="hint">Absolute URL including <code>https://</code>. Used by the direct-to-offer CTA.</span>
+          <input name="offerUrl" type="url" autocomplete="off" placeholder="https://offer.example.com/lp">
+        </label>
+
+        <label>
+          Default conversion sum
+          <span class="hint">Prefills the <code>sum</code> field on the conversion page.</span>
+          <input name="defaultSum" type="text" autocomplete="off" inputmode="decimal" placeholder="1.00">
+        </label>
+
+        <label>
+          Universal tracking script
+          <span class="hint">
+            Generate it in RedTrack under Tools &rarr; Scripts &rarr; New, then paste the whole
+            snippet here. Pick the <code>/click</code> variant for the landing-page flow or
+            <code>/pre-click</code> for the two-page flow. RedTrack does not publish this code,
+            so it has to come from your own account.
+          </span>
+          <textarea name="universalScript" spellcheck="false" placeholder="&lt;script src=&quot;https://track.example.com/....js&quot;&gt;&lt;/script&gt;"></textarea>
+        </label>
+
+        <p class="note">
+          This snippet is executed on the landing and pre-lander pages, which is the whole point
+          &mdash; but it does mean anything you paste here runs with full access to those pages.
+          Paste only the script RedTrack generated for you.
+        </p>
+
+        <div class="row">
+          <button class="btn primary" type="submit">Save settings</button>
+          <button class="btn" type="button" id="clear-settings">Clear all</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Overriding without saving</h2>
+      <p class="lede">Any page accepts these query parameters for a single visit, which is handy for testing a second account.</p>
+      <table>
+        <tbody>
+          <tr><td class="k">?rt_domain=</td><td class="v">tracking domain</td></tr>
+          <tr><td class="k">?rt_cmpid=</td><td class="v">campaign ID</td></tr>
+          <tr><td class="k">?rt_offer=</td><td class="v">offer URL</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Event log</h2>
+      <p class="lede">Newest first. Failures are recorded here rather than being swallowed.</p>
+      <div id="event-log"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/pages/settings.js"></script>
+</body>
+</html>

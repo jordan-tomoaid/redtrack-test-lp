@@ -1,0 +1,61 @@
+/**
+ * Shared page bootstrap: read settings, resolve the click ID, render the two
+ * panels, and hand the page a logger it can append to.
+ */
+import { readConfig } from './config.js';
+import { parseQuery } from './params.js';
+import { parseCookies, resolveClickId, readStoredClickId, persistClickId } from './clickid.js';
+import { CLICKID_COOKIE } from './constants.js';
+import { createLog, appendEntry } from './log.js';
+import { renderInspector, renderLog } from './inspector.js';
+import { renderBanner } from './banner.js';
+
+export function bootstrap({ persist = false } = {}) {
+  const logNode = document.getElementById('event-log');
+  const inspectorNode = document.getElementById('inspector');
+  const bannerNode = document.getElementById('config-banner');
+
+  let logState = createLog();
+  const log = (level, message, detail = null) => {
+    logState = appendEntry(logState, { level, message, detail });
+    renderLog(logNode, logState);
+  };
+
+  const { config, applied, errors } = readConfig(window.localStorage, window.location.search);
+  errors.forEach((message) => log('error', message));
+  if (applied.length > 0) log('info', `Settings overridden by URL: ${applied.join(', ')}`);
+
+  const params = parseQuery(window.location.search);
+  const cookies = parseCookies(document.cookie);
+  const { clickid, source } = resolveClickId({
+    params,
+    cookies,
+    stored: readStoredClickId(window.localStorage),
+  });
+
+  if (clickid === '') {
+    log('warn', 'No click ID found in the URL, cookie or localStorage.',
+      'Open this page through a RedTrack campaign link, or append ?clickid=test123 to try the flow.');
+  } else {
+    log('ok', `Click ID resolved from ${source}.`, clickid);
+    if (persist && source === 'url') {
+      const stored = persistClickId(document, window.localStorage, clickid);
+      if (stored.ok) log('ok', `Click ID persisted to the ${CLICKID_COOKIE} cookie and localStorage.`);
+      else stored.errors.forEach((message) => log('error', message));
+    }
+  }
+
+  const validation = renderBanner(bannerNode, config);
+  validation.errors.forEach((message) => log('warn', message));
+
+  renderInspector(inspectorNode, {
+    params,
+    clickid,
+    source,
+    cookieValue: cookies[CLICKID_COOKIE] ?? '',
+    referrer: document.referrer,
+    href: window.location.href,
+  });
+
+  return Object.freeze({ config, params, clickid, source, cookies, validation, log });
+}

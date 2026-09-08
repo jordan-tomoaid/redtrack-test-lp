@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>RedTrack test — pre-lander</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%234d8dff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/css/base.css">
+</head>
+<body>
+  <header class="top">
+    <h1>RedTrack test harness — pre-lander</h1>
+    <p>Second step of the two-page flow. Confirms the click ID survived the hop.</p>
+    <nav class="pages">
+      <a href="./index.html">Landing</a>
+      <a href="./preclick.html" aria-current=page>Pre-lander</a>
+      <a href="./thankyou.html">Conversion</a>
+      <a href="./settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="config-banner"></div>
+
+    <section class="card">
+      <h2>Continue</h2>
+      <p class="lede">If the click ID above reads "not captured", the /preclick script variant or the cookie domain is wrong.</p>
+      <div id="cta-area"></div>
+    </section>
+    <section class="card">
+      <h2>Inbound parameters</h2>
+      <p class="lede">Everything this page received. Compare it with what the campaign link should have passed.</p>
+      <div id="inspector"></div>
+    </section>
+
+    <section class="card">
+      <h2>Event log</h2>
+      <p class="lede">Newest first. Failures are recorded here rather than being swallowed.</p>
+      <div id="event-log"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/pages/preclick.js"></script>
+</body>
+</html>

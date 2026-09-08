@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>RedTrack test — conversion</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%234d8dff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./assets/css/base.css">
+</head>
+<body>
+  <header class="top">
+    <h1>RedTrack test harness — conversion</h1>
+    <p>Fires conversions against your tracking domain and builds raw postback URLs.</p>
+    <nav class="pages">
+      <a href="./index.html">Landing</a>
+      <a href="./preclick.html">Pre-lander</a>
+      <a href="./thankyou.html" aria-current="page">Conversion</a>
+      <a href="./settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main>
+    <div id="config-banner"></div>
+
+    <section class="card">
+      <h2>Fire a conversion</h2>
+      <p class="lede">The click ID is prefilled from this visit. Edit any field to rebuild the URL.</p>
+
+      <form class="grid" onsubmit="return false">
+        <div class="field-row">
+          <label>
+            Click ID
+            <span class="hint">Sent as <code>clickid</code>.</span>
+            <input id="pb-clickid" type="text" autocomplete="off" placeholder="not captured yet">
+          </label>
+          <label>
+            Sum
+            <span class="hint">Sent as <code>sum</code>, the conversion payout.</span>
+            <input id="pb-sum" type="text" autocomplete="off" inputmode="decimal">
+          </label>
+          <label>
+            Type
+            <span class="hint">Sent as <code>type</code>. Must exist in Tools &rarr; Conversion types.</span>
+            <input id="pb-type" type="text" autocomplete="off" placeholder="Lead">
+          </label>
+        </div>
+
+        <div>
+          <span class="muted">Preset types</span>
+          <div class="row" id="type-buttons" style="margin-top:.4rem"></div>
+        </div>
+
+        <div>
+          <span class="muted">Postback URL</span>
+          <div id="postback-url" style="margin-top:.4rem"></div>
+        </div>
+
+        <div class="row">
+          <button class="btn primary" type="button" id="send-fetch">Send via fetch</button>
+          <button class="btn" type="button" id="send-pixel">Send via image pixel</button>
+          <button class="btn" type="button" id="build-url">Rebuild URL</button>
+          <button class="btn" type="button" id="copy-url">Copy URL</button>
+        </div>
+
+        <p class="note">
+          A browser cannot read a cross-origin postback response, so neither transport can
+          confirm that RedTrack accepted the hit &mdash; only that the request left the browser.
+          Always verify the conversion in the RedTrack dashboard. For a true server-to-server
+          test, copy the URL and call it with <code>curl</code>.
+        </p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Inbound parameters</h2>
+      <p class="lede">Everything this page received. Compare it with what the campaign link should have passed.</p>
+      <div id="inspector"></div>
+    </section>
+
+    <section class="card">
+      <h2>Event log</h2>
+      <p class="lede">Newest first. Failures are recorded here rather than being swallowed.</p>
+      <div id="event-log"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/pages/thankyou.js"></script>
+</body>
+</html>

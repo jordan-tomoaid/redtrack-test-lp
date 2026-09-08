@@ -1,0 +1,94 @@
+# redtrack-test-lp
+
+A static test harness for checking that a [RedTrack](https://redtrack.io) account
+is tracking correctly. It captures click IDs, shows every inbound parameter, and
+fires conversions and postbacks against your own tracking domain.
+
+It is a diagnostic tool, not a marketing page. Everything it does is printed on
+screen, so a failure is never silent.
+
+**Live:** https://jordan-tomoaid.github.io/redtrack-test-lp/
+
+## Pages
+
+| Page | What it does |
+| --- | --- |
+| `index.html` | Landing page. Injects your universal script, resolves and persists the click ID, and builds `/click`, `/preclick` and direct-to-offer CTAs. |
+| `preclick.html` | Pre-lander for the two-step flow. Confirms the click ID survived the hop. |
+| `thankyou.html` | Fires conversions by type with an editable `sum`, and builds raw postback URLs you can copy. |
+| `settings.html` | Tracking domain, campaign ID, offer URL, default sum, and your pasted universal script. |
+
+Every page shows an **inbound parameter inspector** (tracking / sub / utm / other
+params, referrer, the `rtkclickid-store` cookie, and the resolved click ID with
+its source) and an **event log** recording successes and failures alike.
+
+## Setup
+
+1. Open **Settings**.
+2. Fill in your **tracking domain** (host only, e.g. `track.example.com`),
+   **campaign ID** (`cmpid`) and **offer URL**.
+3. In RedTrack, go to **Tools → Scripts → New**, generate a universal tracking
+   script, and paste the whole snippet into the **Universal tracking script**
+   box. Choose the `/click` variant for the single landing page flow, or
+   `/pre-click` if you use a pre-lander.
+4. Save. Settings live in this browser's `localStorage` and are never sent anywhere.
+
+RedTrack generates that script per account and does not publish the code, which
+is why it has to be pasted rather than shipped with this repo.
+
+### Overriding settings for one visit
+
+Any page accepts `?rt_domain=`, `?rt_cmpid=` and `?rt_offer=`, which is handy for
+testing a second account without overwriting what you saved.
+
+## Running a test
+
+1. Open your RedTrack campaign link so the click is recorded and you land on
+   `index.html` with a click ID.
+   To exercise the flow without a real campaign, append `?clickid=test123`.
+2. Check the inspector: the **Click ID** pill should be green and the
+   `rtkclickid-store` cookie should be set.
+3. Click a CTA and confirm the click ID reaches the next page.
+4. On the conversion page, pick a type, set a sum, and send. Then confirm the
+   conversion appears in the RedTrack dashboard.
+
+## Two limitations, stated plainly
+
+**Postbacks sent from a browser are opaque.** CORS prevents reading the
+response, so neither the `fetch` nor the pixel transport can confirm RedTrack
+accepted the hit — only that the request left the browser. Always verify in the
+dashboard. For a real server-to-server test, copy the URL and run it through
+`curl`.
+
+**The click ID cookie is host-only on `*.github.io`.** `github.io` is on the
+public suffix list, so no `Domain` attribute can be set. Cross-subdomain cookie
+behavior has to be tested on a custom domain.
+
+## Development
+
+No build step and no dependencies. Open the files directly, or serve them:
+
+```sh
+python3 -m http.server 8080
+```
+
+Tests cover the pure modules — query parsing, click ID precedence, URL
+construction, and config handling:
+
+```sh
+npm test
+```
+
+Pure logic lives in `assets/js/*.js` with DOM and network effects kept separate,
+which is what lets the suite run under Node with no browser.
+
+## Security note
+
+Inbound parameter values are always rendered with `textContent`, so a crafted
+query string cannot inject markup. The pasted universal script is the one
+deliberate exception — it is executed on the landing and pre-lander pages, so
+paste only the script RedTrack generated for you.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

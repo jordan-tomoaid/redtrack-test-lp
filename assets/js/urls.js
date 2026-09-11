@@ -1,9 +1,10 @@
 /**
- * Pure URL construction for RedTrack endpoints.
+ * Pure URL construction for tracker endpoints. Paths and parameter names come
+ * from the tracker profile in the config; nothing tracker-specific is written here.
  * Every builder returns a new string and throws a readable error when the
  * inputs cannot produce a valid URL.
  */
-import { CLICK_PATH, PRECLICK_PATH, POSTBACK_PATH } from './constants.js';
+import { trackerOf } from './trackers.js';
 
 /** Strip scheme, whitespace and trailing slashes from a tracking domain. */
 export function normalizeDomain(raw) {
@@ -16,7 +17,7 @@ export function normalizeDomain(raw) {
 
 function queryString(params) {
   const pairs = Object.entries(params ?? {})
-    .filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== '')
+    .filter(([key, value]) => key && value !== undefined && value !== null && String(value).trim() !== '')
     .map(([key, value]) => [key, String(value)]);
   const qs = new URLSearchParams(pairs).toString();
   return qs === '' ? '' : `?${qs}`;
@@ -29,25 +30,43 @@ export function buildTrackingUrl(domain, path, params = {}) {
   return `https://${host}/${cleanPath}${queryString(params)}`;
 }
 
+function campaignParams(config, tracker) {
+  return tracker.campaignParam ? { [tracker.campaignParam]: config?.campaignId } : {};
+}
+
 export function buildClickUrl(config, extra = {}) {
-  return buildTrackingUrl(config?.trackingDomain, CLICK_PATH, {
-    cmpid: config?.campaignId,
+  const tracker = trackerOf(config);
+  return buildTrackingUrl(config?.trackingDomain, tracker.paths.click, {
+    ...campaignParams(config, tracker),
     ...extra,
   });
 }
 
 export function buildPreClickUrl(config, extra = {}) {
-  return buildTrackingUrl(config?.trackingDomain, PRECLICK_PATH, {
-    cmpid: config?.campaignId,
+  const tracker = trackerOf(config);
+  if (!tracker.paths.preclick) {
+    throw new Error(`${tracker.label} has no /preclick two-step flow.`);
+  }
+  return buildTrackingUrl(config?.trackingDomain, tracker.paths.preclick, {
+    ...campaignParams(config, tracker),
     ...extra,
   });
 }
 
-export function buildPostbackUrl(domain, { clickid, sum, type, extra = {} } = {}) {
+/**
+ * Map our field names onto the tracker's postback parameter names.
+ * Fields the tracker does not support (postback.<field> === null) are dropped.
+ */
+export function buildPostbackUrl(config, { clickid, sum, type, txid, extra = {} } = {}) {
+  const tracker = trackerOf(config);
   if (String(clickid ?? '').trim() === '') {
     throw new Error('A click ID is required to build a postback URL.');
   }
-  return buildTrackingUrl(domain, POSTBACK_PATH, { clickid, sum, type, ...extra });
+  const mapped = Object.entries({ clickid, sum, type, txid }).reduce((acc, [field, value]) => {
+    const key = tracker.postback[field];
+    return key ? { ...acc, [key]: value } : acc;
+  }, {});
+  return buildTrackingUrl(config?.trackingDomain, tracker.paths.postback, { ...mapped, ...extra });
 }
 
 /** Merge params into an absolute URL. Supplied params win over existing ones. */

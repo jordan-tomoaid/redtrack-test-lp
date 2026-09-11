@@ -25,24 +25,29 @@
 
     <section class="card">
       <h2>Fire a conversion</h2>
-      <p class="lede">The click ID is prefilled from this visit. Edit any field to rebuild the URL.</p>
+      <p class="lede" id="fire-lede">The click ID is prefilled from this visit. Edit any field to rebuild the URL.</p>
 
       <form class="grid" onsubmit="return false">
         <div class="field-row">
           <label>
             Click ID
-            <span class="hint">Sent as <code>clickid</code>.</span>
+            <span class="hint">Sent as <code id="k-clickid">clickid</code>.</span>
             <input id="pb-clickid" type="text" autocomplete="off" placeholder="not captured yet">
           </label>
           <label>
             Sum
-            <span class="hint">Sent as <code>sum</code>, the conversion payout.</span>
+            <span class="hint">Sent as <code id="k-sum">sum</code>, the conversion payout.</span>
             <input id="pb-sum" type="text" autocomplete="off" inputmode="decimal">
           </label>
           <label>
             Type
-            <span class="hint">Sent as <code>type</code>. Must exist in Tools &rarr; Conversion types.</span>
+            <span class="hint">Sent as <code id="k-type">type</code>. Must match a conversion type defined in the tracker.</span>
             <input id="pb-type" type="text" autocomplete="off" placeholder="Lead">
+          </label>
+          <label id="txid-field">
+            Transaction ID
+            <span class="hint">Sent as <code id="k-txid">txid</code>. De-duplicates conversions; optional.</span>
+            <input id="pb-txid" type="text" autocomplete="off" placeholder="order-1001">
           </label>
         </div>
 

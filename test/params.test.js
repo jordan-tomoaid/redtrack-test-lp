@@ -6,6 +6,7 @@ import {
   findClickId,
   pickPassThrough,
 } from '../assets/js/params.js';
+import { TRACKERS } from '../assets/js/trackers.js';
 
 test('parseQuery handles a leading question mark and decodes values', () => {
   assert.deepEqual(parseQuery('?clickid=abc&sub1=hello%20world'), {
@@ -52,6 +53,18 @@ test('findClickId prefers rtkcid, then clickid, then rtkclickid', () => {
   assert.equal(findClickId({ rtkcid: 'a', clickid: 'b', rtkclickid: 'c' }), 'a');
   assert.equal(findClickId({ clickid: 'b', rtkclickid: 'c' }), 'b');
   assert.equal(findClickId({ rtkclickid: 'c' }), 'c');
+});
+
+test('findClickId honours the tracker priority list it is given', () => {
+  assert.equal(findClickId({ cid: 'v1', clickid: 'v2' }, TRACKERS.voluum.clickParams), 'v1');
+  assert.equal(findClickId({ clickid: 'v2' }, TRACKERS.voluum.clickParams), 'v2');
+  assert.equal(findClickId({ rtkcid: 'r1' }, TRACKERS.voluum.clickParams), '', 'rtkcid is not a Voluum param');
+});
+
+test('classifyParams treats Voluum params as tracking params', () => {
+  const r = classifyParams({ cid: 'a', payout: '1', et: 'lead', txid: 't', cep: 'x', sub1: 's' });
+  assert.deepEqual(r.tracking.map((e) => e.name), ['cid', 'payout', 'et', 'txid', 'cep']);
+  assert.deepEqual(r.sub.map((e) => e.name), ['sub1']);
 });
 
 test('findClickId ignores blank values and trims the result', () => {

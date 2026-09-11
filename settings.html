@@ -29,14 +29,21 @@
 
       <form class="grid" id="settings-form">
         <label>
+          Tracker
+          <span class="hint">Decides the click-ID parameter, endpoint paths, postback parameter names, and which fields below are required.</span>
+          <select name="tracker"></select>
+        </label>
+        <div id="tracker-notes"></div>
+
+        <label>
           Tracking domain
-          <span class="hint">Your dedicated RedTrack domain, host only &mdash; e.g. <code>track.example.com</code>. The scheme is stripped on save.</span>
+          <span class="hint">Your dedicated tracking domain, host only &mdash; e.g. <code>track.example.com</code>. The scheme is stripped on save.</span>
           <input name="trackingDomain" type="text" autocomplete="off" placeholder="track.example.com">
         </label>
 
-        <label>
+        <label id="field-campaignId">
           Campaign ID (cmpid)
-          <span class="hint">From the campaign's tracking link in RedTrack.</span>
+          <span class="hint">From the campaign's tracking link in RedTrack. <em id="unused-campaignId"></em></span>
           <input name="campaignId" type="text" autocomplete="off">
         </label>
 
@@ -52,10 +59,11 @@
           <input name="defaultSum" type="text" autocomplete="off" inputmode="decimal" placeholder="1.00">
         </label>
 
-        <label>
-          Universal tracking script
+        <label id="field-universalScript">
+          Tracker script
           <span class="hint">
-            Generate it in RedTrack under Tools &rarr; Scripts &rarr; New, then paste the whole
+            <em id="unused-universalScript"></em>
+            RedTrack: generate it under Tools &rarr; Scripts &rarr; New, then paste the whole
             snippet here. Pick the <code>/click</code> variant for the landing-page flow or
             <code>/pre-click</code> for the two-page flow. RedTrack does not publish this code,
             so it has to come from your own account.
@@ -81,6 +89,7 @@
       <p class="lede">Any page accepts these query parameters for a single visit, which is handy for testing a second account.</p>
       <table>
         <tbody>
+          <tr><td class="k">?rt_tracker=</td><td class="v">tracker profile (redtrack, voluum)</td></tr>
           <tr><td class="k">?rt_domain=</td><td class="v">tracking domain</td></tr>
           <tr><td class="k">?rt_cmpid=</td><td class="v">campaign ID</td></tr>
           <tr><td class="k">?rt_offer=</td><td class="v">offer URL</td></tr>

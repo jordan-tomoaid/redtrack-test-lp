@@ -4,7 +4,6 @@
  */
 import { el, mount } from './dom.js';
 import { classifyParams } from './params.js';
-import { CLICKID_COOKIE } from './constants.js';
 
 const BUCKET_LABELS = Object.freeze({
   tracking: 'RedTrack parameters',
@@ -29,7 +28,7 @@ function bucketTable(label, entries) {
   ]);
 }
 
-function summary({ clickid, source, cookieValue, referrer, href }) {
+function summary({ clickid, source, cookieName, cookieValue, referrer, href, trackerLabel }) {
   const state = clickid === '' ? 'bad' : 'good';
   return el('div', { class: 'summary' }, [
     el('div', { class: `pill ${state}` }, [
@@ -38,8 +37,9 @@ function summary({ clickid, source, cookieValue, referrer, href }) {
     ]),
     el('table', {}, [
       el('tbody', {}, [
+        row('tracker', trackerLabel),
         row('resolved from', source),
-        row(`${CLICKID_COOKIE} cookie`, cookieValue === '' ? '(not set)' : cookieValue),
+        row(`${cookieName} cookie`, cookieValue === '' ? '(not set)' : cookieValue),
         row('referrer', referrer === '' ? '(none)' : referrer),
         row('current URL', href),
       ]),

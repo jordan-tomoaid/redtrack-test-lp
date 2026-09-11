@@ -9,6 +9,9 @@ import {
   appendParams,
 } from '../assets/js/urls.js';
 
+const RT = { tracker: 'redtrack', trackingDomain: 'track.example.com', campaignId: 'cmp1' };
+const VL = { tracker: 'voluum', trackingDomain: 'vlm.example.com', campaignId: 'ignored' };
+
 test('normalizeDomain strips scheme, trailing slashes and whitespace', () => {
   assert.equal(normalizeDomain('  https://track.example.com/  '), 'track.example.com');
   assert.equal(normalizeDomain('HTTP://track.example.com'), 'track.example.com');
@@ -42,7 +45,7 @@ test('buildTrackingUrl fails loudly when the domain is missing', () => {
 });
 
 test('buildClickUrl and buildPreClickUrl use the right path and carry cmpid', () => {
-  const config = { trackingDomain: 'track.example.com', campaignId: 'cmp1' };
+  const config = RT;
   assert.equal(buildClickUrl(config), 'https://track.example.com/click?cmpid=cmp1');
   assert.equal(buildPreClickUrl(config), 'https://track.example.com/preclick?cmpid=cmp1');
   assert.equal(
@@ -52,25 +55,42 @@ test('buildClickUrl and buildPreClickUrl use the right path and carry cmpid', ()
 });
 
 test('buildPostbackUrl requires a click ID', () => {
-  assert.throws(
-    () => buildPostbackUrl('track.example.com', { sum: '1' }),
-    /click ID is required/,
-  );
-  assert.throws(() => buildPostbackUrl('track.example.com', {}), /click ID is required/);
+  assert.throws(() => buildPostbackUrl(RT, { sum: '1' }), /click ID is required/);
+  assert.throws(() => buildPostbackUrl(RT, {}), /click ID is required/);
 });
 
-test('buildPostbackUrl assembles clickid, sum and type', () => {
+test('buildPostbackUrl (RedTrack) assembles clickid, sum and type and drops txid', () => {
   assert.equal(
-    buildPostbackUrl('track.example.com', { clickid: 'abc', sum: '12.50', type: 'Lead' }),
+    buildPostbackUrl(RT, { clickid: 'abc', sum: '12.50', type: 'Lead', txid: 'order-1' }),
     'https://track.example.com/postback?clickid=abc&sum=12.50&type=Lead',
   );
 });
 
 test('buildPostbackUrl omits an absent sum or type', () => {
+  assert.equal(buildPostbackUrl(RT, { clickid: 'abc' }), 'https://track.example.com/postback?clickid=abc');
+});
+
+test('buildPostbackUrl (Voluum) maps to cid, payout, et and txid', () => {
   assert.equal(
-    buildPostbackUrl('track.example.com', { clickid: 'abc' }),
+    buildPostbackUrl(VL, { clickid: 'abc', sum: '12.50', type: 'lead', txid: 'order-1' }),
+    'https://vlm.example.com/postback?cid=abc&payout=12.50&et=lead&txid=order-1',
+  );
+});
+
+test('buildPostbackUrl falls back to RedTrack names for an unknown tracker', () => {
+  assert.equal(
+    buildPostbackUrl({ ...RT, tracker: 'mystery' }, { clickid: 'abc' }),
     'https://track.example.com/postback?clickid=abc',
   );
+});
+
+test('buildClickUrl (Voluum) sends no campaign param', () => {
+  assert.equal(buildClickUrl(VL), 'https://vlm.example.com/click');
+  assert.equal(buildClickUrl(VL, { sub1: 'x' }), 'https://vlm.example.com/click?sub1=x');
+});
+
+test('buildPreClickUrl (Voluum) fails loudly because Voluum has no /preclick', () => {
+  assert.throws(() => buildPreClickUrl(VL), /Voluum has no \/preclick/);
 });
 
 test('appendParams merges into an existing query and preserves the hash', () => {

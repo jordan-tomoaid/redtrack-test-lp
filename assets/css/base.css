@@ -119,3 +119,10 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 
 .field-row { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 
 .note { font-size: .8rem; color: var(--muted); border-left: 2px solid var(--warn); padding-left: .7rem; margin: .8rem 0 0; }
+
+.unused { opacity: .55; }
+.unused em { color: var(--warn); font-style: normal; }
+#tracker-notes h3 { margin: .8rem 0 .3rem; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+ul.notes { margin: 0; padding-left: 1.1rem; font-size: .82rem; color: var(--muted); }
+ul.notes li { margin: .2rem 0; }
+select { appearance: auto; }

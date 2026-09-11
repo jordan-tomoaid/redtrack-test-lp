@@ -1,7 +1,8 @@
 /**
  * Pure query-string analysis. No DOM, no network.
  */
-import { CLICKID_PARAMS, TRACKING_PARAMS } from './constants.js';
+import { TRACKING_PARAMS } from './constants.js';
+import { TRACKERS, DEFAULT_TRACKER } from './trackers.js';
 
 const SUB_PATTERN = /^sub_?\d+$/;
 
@@ -43,10 +44,10 @@ export function classifyParams(params) {
   );
 }
 
-/** First non-empty click ID param, or "" when none is present. */
-export function findClickId(params) {
+/** First non-empty click ID param (in the tracker's priority order), or "" when none is present. */
+export function findClickId(params, clickParams = TRACKERS[DEFAULT_TRACKER].clickParams) {
   const source = params ?? {};
-  const hit = CLICKID_PARAMS.find(
+  const hit = clickParams.find(
     (name) => typeof source[name] === 'string' && source[name].trim() !== '',
   );
   return hit ? source[hit].trim() : '';

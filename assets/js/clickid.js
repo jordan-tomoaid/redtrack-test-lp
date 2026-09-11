@@ -1,12 +1,10 @@
 /**
  * Click ID capture. Cookie parsing and serialization are pure; persistence
  * takes the document and storage as arguments so it can be exercised in tests.
+ * Which URL params and which cookie name to use come from the tracker profile.
  */
-import {
-  CLICKID_COOKIE,
-  CLICKID_COOKIE_DAYS,
-  CLICKID_STORAGE_KEY,
-} from './constants.js';
+import { CLICKID_COOKIE_DAYS, CLICKID_STORAGE_KEY } from './constants.js';
+import { TRACKERS, DEFAULT_TRACKER } from './trackers.js';
 import { findClickId } from './params.js';
 
 export function parseCookies(cookieString) {
@@ -39,11 +37,11 @@ export function serializeCookie(name, value, { days = CLICKID_COOKIE_DAYS, now =
 }
 
 /** URL wins over cookie, cookie wins over localStorage. */
-export function resolveClickId({ params = {}, cookies = {}, stored = null } = {}) {
-  const fromUrl = findClickId(params);
+export function resolveClickId({ params = {}, cookies = {}, stored = null, tracker = TRACKERS[DEFAULT_TRACKER] } = {}) {
+  const fromUrl = findClickId(params, tracker.clickParams);
   if (fromUrl !== '') return Object.freeze({ clickid: fromUrl, source: 'url' });
 
-  const fromCookie = String(cookies[CLICKID_COOKIE] ?? '').trim();
+  const fromCookie = String(cookies[tracker.cookie] ?? '').trim();
   if (fromCookie !== '') return Object.freeze({ clickid: fromCookie, source: 'cookie' });
 
   const fromStorage = String(stored ?? '').trim();
@@ -52,8 +50,8 @@ export function resolveClickId({ params = {}, cookies = {}, stored = null } = {}
   return Object.freeze({ clickid: '', source: 'none' });
 }
 
-/** Write the click ID to both the RedTrack cookie and localStorage. */
-export function persistClickId(doc, storage, clickid) {
+/** Write the click ID to the tracker's cookie and to localStorage. */
+export function persistClickId(doc, storage, clickid, cookieName = TRACKERS[DEFAULT_TRACKER].cookie) {
   const value = String(clickid ?? '').trim();
   if (value === '') {
     return Object.freeze({ ok: false, errors: Object.freeze(['No click ID to persist.']) });
@@ -61,9 +59,9 @@ export function persistClickId(doc, storage, clickid) {
 
   const errors = [];
   try {
-    doc.cookie = serializeCookie(CLICKID_COOKIE, value);
+    doc.cookie = serializeCookie(cookieName, value);
   } catch (err) {
-    errors.push(`Could not write the ${CLICKID_COOKIE} cookie: ${err.message}`);
+    errors.push(`Could not write the ${cookieName} cookie: ${err.message}`);
   }
   try {
     storage?.setItem?.(CLICKID_STORAGE_KEY, value);

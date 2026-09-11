@@ -29,6 +29,7 @@ function throwingStorage(message) {
 }
 
 const COMPLETE = Object.freeze({
+  tracker: 'redtrack',
   trackingDomain: 'track.example.com',
   campaignId: 'cmp1',
   offerUrl: 'https://offer.example.com',
@@ -99,7 +100,25 @@ test('validateConfig names each missing field', () => {
   assert.match(result.errors.join(' '), /Tracking domain/);
   assert.match(result.errors.join(' '), /Campaign ID/);
   assert.match(result.errors.join(' '), /Offer URL/);
-  assert.match(result.errors.join(' '), /universal script/);
+  assert.match(result.errors.join(' '), /script pasted/);
+});
+
+test('validateConfig (Voluum) does not require a campaign ID or a script', () => {
+  const voluum = updateConfig(COMPLETE, { tracker: 'voluum', campaignId: '', universalScript: '' });
+  assert.deepEqual(validateConfig(voluum), { valid: true, errors: [] });
+});
+
+test('validateConfig flags an unknown tracker but keeps validating with the default profile', () => {
+  const result = validateConfig(updateConfig(COMPLETE, { tracker: 'mystery' }));
+  assert.equal(result.valid, false);
+  assert.equal(result.errors.length, 1);
+  assert.match(result.errors[0], /Unknown tracker "mystery"/);
+});
+
+test('applyUrlOverrides accepts rt_tracker', () => {
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_tracker=voluum');
+  assert.equal(config.tracker, 'voluum');
+  assert.deepEqual(applied, ['tracker']);
 });
 
 test('validateConfig treats a scheme-only domain as missing', () => {

@@ -7,7 +7,10 @@ import {
   persistClickId,
   readStoredClickId,
 } from '../assets/js/clickid.js';
-import { CLICKID_COOKIE, CLICKID_STORAGE_KEY } from '../assets/js/constants.js';
+import { CLICKID_STORAGE_KEY } from '../assets/js/constants.js';
+import { TRACKERS } from '../assets/js/trackers.js';
+
+const CLICKID_COOKIE = TRACKERS.redtrack.cookie;
 
 test('parseCookies splits pairs and decodes values', () => {
   assert.deepEqual(parseCookies('a=1; b=hello%20world'), { a: '1', b: 'hello world' });
@@ -57,6 +60,23 @@ test('resolveClickId falls back to the cookie, then localStorage, then none', ()
   assert.deepEqual(resolveClickId({ stored: 's' }), { clickid: 's', source: 'localStorage' });
   assert.deepEqual(resolveClickId({}), { clickid: '', source: 'none' });
   assert.deepEqual(resolveClickId(), { clickid: '', source: 'none' });
+});
+
+test('resolveClickId uses the tracker profile for params and cookie name', () => {
+  const tracker = TRACKERS.voluum;
+  assert.deepEqual(resolveClickId({ params: { cid: 'c1' }, tracker }), { clickid: 'c1', source: 'url' });
+  assert.deepEqual(resolveClickId({ cookies: { [tracker.cookie]: 'k1' }, tracker }), { clickid: 'k1', source: 'cookie' });
+  assert.deepEqual(
+    resolveClickId({ params: { rtkcid: 'r' }, cookies: { 'rtkclickid-store': 'x' }, tracker }),
+    { clickid: '', source: 'none' },
+    'RedTrack names must not leak into the Voluum profile',
+  );
+});
+
+test('persistClickId writes to the cookie name it is given', () => {
+  const doc = { cookie: '' };
+  persistClickId(doc, { setItem: () => {} }, 'abc', TRACKERS.voluum.cookie);
+  assert.match(doc.cookie, /^voluum-clickid-store=abc;/);
 });
 
 test('resolveClickId ignores whitespace-only values at every level', () => {

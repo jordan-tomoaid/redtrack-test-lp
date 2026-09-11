@@ -12,7 +12,11 @@ export function renderBanner(node, config, { settingsHref = './settings.html' } 
   if (result.valid) {
     mount(node, el('div', { class: 'banner ok' }, [
       el('strong', { text: 'Configured.' }),
-      el('span', { text: ` Tracking domain ${config.trackingDomain}, campaign ${config.campaignId}.` }),
+      el('span', {
+        text: config.campaignId
+          ? ` Tracking domain ${config.trackingDomain}, campaign ${config.campaignId}.`
+          : ` Tracking domain ${config.trackingDomain}.`,
+      }),
     ]));
     return result;
   }

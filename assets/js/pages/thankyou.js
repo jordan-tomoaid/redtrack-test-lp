@@ -7,14 +7,26 @@ import { buildPostbackUrl } from '../urls.js';
 import { sendByFetch, sendByPixel, copyToClipboard } from '../postback.js';
 import { CONVERSION_TYPES } from '../constants.js';
 import { el, mount } from '../dom.js';
+import { trackerOf } from '../trackers.js';
 
 const page = bootstrap({ persist: false });
 const { config, clickid, log } = page;
+const tracker = trackerOf(config);
 
 const urlOutput = document.getElementById('postback-url');
 const clickidInput = document.getElementById('pb-clickid');
 const sumInput = document.getElementById('pb-sum');
 const typeInput = document.getElementById('pb-type');
+const txidInput = document.getElementById('pb-txid');
+
+// Show the parameter names this tracker actually receives.
+Object.entries(tracker.postback).forEach(([field, key]) => {
+  const label = document.getElementById(`k-${field}`);
+  if (label) label.textContent = key ?? '—';
+});
+document.getElementById('txid-field').hidden = !tracker.postback.txid;
+document.getElementById('fire-lede').textContent =
+  `Sending to ${tracker.label} at /${tracker.paths.postback}. The click ID is prefilled from this visit; edit any field to rebuild the URL.`;
 
 clickidInput.value = clickid;
 sumInput.value = config.defaultSum;
@@ -30,6 +42,7 @@ function formValues() {
     clickid: clickidInput.value.trim(),
     sum: sumInput.value.trim(),
     type: typeInput.value.trim(),
+    txid: txidInput.value.trim(),
   });
 }
 
@@ -44,7 +57,7 @@ function showError(message) {
 /** @returns {string|null} the built URL, or null after reporting the failure. */
 function currentUrl() {
   try {
-    const url = buildPostbackUrl(config.trackingDomain, formValues());
+    const url = buildPostbackUrl(config, formValues());
     showUrl(url);
     return url;
   } catch (err) {
@@ -95,7 +108,7 @@ document.getElementById('copy-url').addEventListener('click', async () => {
   else log('error', 'Copy failed.', result.error);
 });
 
-[clickidInput, sumInput, typeInput].forEach((input) =>
+[clickidInput, sumInput, typeInput, txidInput].forEach((input) =>
   input.addEventListener('input', () => currentUrl()));
 
 currentUrl();

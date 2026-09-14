@@ -80,7 +80,7 @@ export function validateConfig(config) {
       ? `Campaign ID (${tracker.campaignParam}) is missing.`
       : null,
     current.offerUrl.trim() === '' ? 'Offer URL is missing.' : null,
-    tracker.script === 'required' && current.universalScript.trim() === ''
+    tracker.script === 'required' && !tracker.builtInScript && current.universalScript.trim() === ''
       ? `No ${tracker.label} script pasted — click recording will not happen.`
       : null,
   ].filter(Boolean);

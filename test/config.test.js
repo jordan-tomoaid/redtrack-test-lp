@@ -93,14 +93,18 @@ test('validateConfig passes only when every required field is present', () => {
   assert.deepEqual(validateConfig(COMPLETE).errors, []);
 });
 
-test('validateConfig names each missing field', () => {
+test('validateConfig names each missing field; the built-in RedTrack script satisfies the script check', () => {
   const result = validateConfig(DEFAULT_CONFIG);
   assert.equal(result.valid, false);
-  assert.equal(result.errors.length, 4);
+  assert.equal(result.errors.length, 3);
   assert.match(result.errors.join(' '), /Tracking domain/);
   assert.match(result.errors.join(' '), /Campaign ID/);
   assert.match(result.errors.join(' '), /Offer URL/);
-  assert.match(result.errors.join(' '), /script pasted/);
+  assert.doesNotMatch(result.errors.join(' '), /script pasted/);
+});
+
+test('validateConfig (RedTrack) passes without a pasted script because one is built in', () => {
+  assert.equal(validateConfig({ ...COMPLETE, universalScript: '' }).valid, true);
 });
 
 test('validateConfig (Voluum) does not require a campaign ID or a script', () => {

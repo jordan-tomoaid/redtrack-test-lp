@@ -9,6 +9,7 @@ import { trackerOf } from './trackers.js';
 import { createLog, appendEntry } from './log.js';
 import { renderInspector, renderLog } from './inspector.js';
 import { renderBanner } from './banner.js';
+import { activateBuiltInScript } from './redtrack.js';
 
 export function bootstrap({ persist = false } = {}) {
   const logNode = document.getElementById('event-log');
@@ -25,6 +26,18 @@ export function bootstrap({ persist = false } = {}) {
   const tracker = trackerOf(config);
   errors.forEach((message) => log('error', message));
   log('info', `Tracker profile: ${tracker.label}.`, `click params ${tracker.clickParams.join(' > ')} · cookie ${tracker.cookie}`);
+
+  // The tracker script ships in the HTML but only runs for the active profile.
+  const builtIn = activateBuiltInScript(document, tracker, {
+    onLoad: (src) => {
+      const now = parseCookies(document.cookie)[tracker.cookie] ?? '';
+      log('ok', `${tracker.label} built-in script loaded.`, src);
+      log(now === '' ? 'warn' : 'ok', `${tracker.cookie} cookie after the script ran: ${now === '' ? '(not set by the script)' : now}`);
+    },
+    onError: (message) => log('error', message),
+  });
+  if (builtIn.activated) log('info', `${tracker.label} built-in script activated from the page HTML.`, builtIn.src);
+  else if (tracker.builtInScript) log('warn', `Built-in ${tracker.label} script not activated: ${builtIn.reason}.`);
   if (applied.length > 0) log('info', `Settings overridden by URL: ${applied.join(', ')}`);
 
   const params = parseQuery(window.location.search);
@@ -42,8 +55,11 @@ export function bootstrap({ persist = false } = {}) {
   } else {
     log('ok', `Click ID resolved from ${source}.`, clickid);
     if (persist && source === 'url') {
-      const stored = persistClickId(document, window.localStorage, clickid, tracker.cookie);
-      if (stored.ok) log('ok', `Click ID persisted to the ${tracker.cookie} cookie and localStorage.`);
+      // When the tracker's own script is on the page it owns the cookie; we only keep localStorage.
+      const stored = persistClickId(document, window.localStorage, clickid, tracker.cookie, { cookie: !builtIn.activated });
+      if (stored.ok) log('ok', builtIn.activated
+        ? `Click ID kept in localStorage; the ${tracker.cookie} cookie is left to the ${tracker.label} script.`
+        : `Click ID persisted to the ${tracker.cookie} cookie and localStorage.`);
       else stored.errors.forEach((message) => log('error', message));
     }
   }

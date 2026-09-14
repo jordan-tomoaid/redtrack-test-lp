@@ -95,6 +95,15 @@ test('persistClickId writes both the cookie and localStorage', () => {
   assert.equal(written.get(CLICKID_STORAGE_KEY), 'abc');
 });
 
+test('persistClickId can leave the cookie to the tracker script and still store locally', () => {
+  const doc = { cookie: '' };
+  const written = new Map();
+  const result = persistClickId(doc, { setItem: (k, v) => written.set(k, v) }, 'abc', CLICKID_COOKIE, { cookie: false });
+  assert.equal(result.ok, true);
+  assert.equal(doc.cookie, '');
+  assert.equal(written.get(CLICKID_STORAGE_KEY), 'abc');
+});
+
 test('persistClickId refuses a blank click ID with a reason', () => {
   const result = persistClickId({ cookie: '' }, { setItem: () => {} }, '   ');
   assert.equal(result.ok, false);

@@ -42,5 +42,11 @@
   </main>
 
   <script type="module" src="./assets/js/pages/preclick.js"></script>
+  <!-- RedTrack universal script, kept in the HTML at the end of <body> the way a production lander
+       ships it. Change the src here (and TRACKERS.redtrack.builtInScript) and push when the tracking
+       domain changes. type="text/plain" keeps the browser from fetching it; page.js activates it only
+       while the RedTrack profile is active, so a Voluum test cannot record phantom clicks against
+       defaultcampaignid. A pasted copy of the same src in settings is skipped, never loaded twice. -->
+  <script type="text/plain" data-tracker-script="redtrack" src="https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&amp;cookiedomain=&amp;cookieduration=90&amp;defaultcampaignid=6aa0cde2056bd43dd734e77c&amp;regviewonce=false&amp;script_id=6aa0d33e056bd43dd735a8f1"></script>
 </body>
 </html>

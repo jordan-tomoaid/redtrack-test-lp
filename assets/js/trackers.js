@@ -17,8 +17,11 @@ export const TRACKERS = Object.freeze({
     // Our field name -> the query parameter this tracker expects. null = not supported.
     postback: Object.freeze({ clickid: 'clickid', sum: 'sum', type: 'type', txid: null }),
     campaignParam: 'cmpid',
-    // 'required': clicks are only recorded when the pasted universal script runs.
+    // 'required': clicks are only recorded when the universal script runs.
     script: 'required',
+    // Shipped statically in index / preclick / thankyou as <script type="text/plain" data-tracker-script="redtrack">.
+    // Must match that tag's src; page.js warns if it drifts.
+    builtInScript: 'https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&cookiedomain=&cookieduration=90&defaultcampaignid=6aa0cde2056bd43dd734e77c&regviewonce=false&script_id=6aa0d33e056bd43dd735a8f1',
     notes: Object.freeze([
       'Generate the universal script in RedTrack under Tools → Scripts → New and paste it in settings; without it this visit is not recorded as a click.',
     ]),
@@ -37,6 +40,7 @@ export const TRACKERS = Object.freeze({
     campaignParam: null,
     // Redirect tracking needs no script. Voluum still recommends a lander script; paste it if you use one.
     script: 'optional',
+    builtInScript: null,
     notes: Object.freeze([
       'Start every test from the Voluum campaign URL. /click only works when the visit began there — otherwise the cep parameter is empty and Voluum ignores the click.',
       'Put ?cid={clickid} on the lander URL in Voluum so the click ID reaches this page.',

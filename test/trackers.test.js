@@ -24,6 +24,14 @@ test('RedTrack profile keeps the names its docs mandate', () => {
   assert.deepEqual({ ...t.postback }, { clickid: 'clickid', sum: 'sum', type: 'type', txid: null });
   assert.equal(t.campaignParam, 'cmpid');
   assert.equal(t.paths.preclick, 'preclick');
+  assert.match(t.builtInScript, /^https:\/\/wmipr\.ttrk\.io\/uniclick\.js\?/);
+});
+
+test('every profile declares builtInScript explicitly (string or null)', () => {
+  for (const key of TRACKER_KEYS) {
+    const v = TRACKERS[key].builtInScript;
+    assert.ok(v === null || (typeof v === 'string' && v.startsWith('https://')), `${key}.builtInScript`);
+  }
 });
 
 test('Voluum profile uses cid / payout / et / txid and has no preclick or campaign param', () => {

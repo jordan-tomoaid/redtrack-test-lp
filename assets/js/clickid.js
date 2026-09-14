@@ -50,18 +50,24 @@ export function resolveClickId({ params = {}, cookies = {}, stored = null, track
   return Object.freeze({ clickid: '', source: 'none' });
 }
 
-/** Write the click ID to the tracker's cookie and to localStorage. */
-export function persistClickId(doc, storage, clickid, cookieName = TRACKERS[DEFAULT_TRACKER].cookie) {
+/**
+ * Write the click ID to localStorage and, unless cookie:false, to the tracker's cookie.
+ * Pass cookie:false when the tracker's own script is on the page — it owns that cookie, and
+ * writing it first would hide a script that fails to set it.
+ */
+export function persistClickId(doc, storage, clickid, cookieName = TRACKERS[DEFAULT_TRACKER].cookie, { cookie = true } = {}) {
   const value = String(clickid ?? '').trim();
   if (value === '') {
     return Object.freeze({ ok: false, errors: Object.freeze(['No click ID to persist.']) });
   }
 
   const errors = [];
-  try {
-    doc.cookie = serializeCookie(cookieName, value);
-  } catch (err) {
-    errors.push(`Could not write the ${cookieName} cookie: ${err.message}`);
+  if (cookie) {
+    try {
+      doc.cookie = serializeCookie(cookieName, value);
+    } catch (err) {
+      errors.push(`Could not write the ${cookieName} cookie: ${err.message}`);
+    }
   }
   try {
     storage?.setItem?.(CLICKID_STORAGE_KEY, value);

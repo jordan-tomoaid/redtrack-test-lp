@@ -16,6 +16,7 @@ if (config.universalScript.trim() !== '') {
   const result = injectScript(document, config.universalScript, {
     onLoad: (src) => log('ok', 'Universal script loaded.', src),
     onError: (message) => log('error', message),
+    onSkip: (src) => log('warn', 'Pasted script is already active on this page — not injected again. You can clear it from settings.', src),
   });
   result.errors.forEach((message) => log('error', message));
   if (result.injected > 0) log('info', `Injected ${result.injected} script tag(s) from settings.`);

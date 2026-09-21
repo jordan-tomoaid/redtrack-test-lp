@@ -6,14 +6,14 @@ import { normalizeDomain } from '../urls.js';
 import { createLog, appendEntry } from '../log.js';
 import { renderLog } from '../inspector.js';
 import { el, mount } from '../dom.js';
-import { TRACKERS, TRACKER_KEYS, trackerOf } from '../trackers.js';
+import { TRACKERS, TRACKER_KEYS, trackerOf, modeOf, MODE_LABELS } from '../trackers.js';
 
-const FIELDS = Object.freeze(['tracker', 'trackingDomain', 'campaignId', 'offerUrl', 'defaultSum', 'universalScript']);
+const FIELDS = Object.freeze(['tracker', 'mode', 'trackingDomain', 'campaignId', 'offerUrl', 'defaultSum', 'universalScript']);
 
 // Fields whose relevance depends on the tracker profile.
 const TRACKER_DEPENDENT = Object.freeze({
   campaignId: (t) => (t.campaignParam ? '' : `${t.label} does not use a campaign parameter — leave empty.`),
-  universalScript: (t) => (t.script === 'required' ? '' : `Optional for ${t.label} redirect tracking.`),
+  universalScript: (t, mode) => (mode === 'script' && t.script === 'required' ? '' : `Not used in ${mode} mode — the click is recorded by the ${t.label} redirect.`),
 });
 
 const logNode = document.getElementById('event-log');
@@ -34,8 +34,12 @@ mount(form.elements.tracker, TRACKER_KEYS.map((key) => el('option', { value: key
 /** Dim fields the chosen tracker ignores and list its notes. */
 function applyTrackerUi(config) {
   const tracker = trackerOf(config);
+  const mode = modeOf(config);
+  // Mode options follow the tracker; an unsupported saved mode snaps to the tracker's default.
+  mount(form.elements.mode, tracker.modes.map((m) => el('option', { value: m, text: MODE_LABELS[m] })));
+  form.elements.mode.value = mode;
   Object.entries(TRACKER_DEPENDENT).forEach(([field, reason]) => {
-    const note = reason(tracker);
+    const note = reason(tracker, mode);
     const wrapper = document.getElementById(`field-${field}`);
     const hint = document.getElementById(`unused-${field}`);
     wrapper.classList.toggle('unused', note !== '');
@@ -81,6 +85,13 @@ function showValidation(config) {
 fill(initial.config);
 showValidation(initial.config);
 applyTrackerUi(initial.config);
+
+form.elements.mode.addEventListener('change', () => {
+  const next = formConfig();
+  applyTrackerUi(next);
+  showValidation(next);
+  log('info', `Mode switched to ${modeOf(next)} (not saved yet).`);
+});
 
 form.elements.tracker.addEventListener('change', () => {
   const next = formConfig();

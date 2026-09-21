@@ -17,7 +17,11 @@ export const TRACKERS = Object.freeze({
     // Our field name -> the query parameter this tracker expects. null = not supported.
     postback: Object.freeze({ clickid: 'clickid', sum: 'sum', type: 'type', txid: null }),
     campaignParam: 'cmpid',
-    // 'required': clicks are only recorded when the universal script runs.
+    // Tracking modes this tracker supports; the first is the default.
+    modes: Object.freeze(['redirect', 'script']),
+    // In 'script' mode clicks are only recorded when the universal script runs.
+    // In 'redirect' mode the click is recorded by the 302 and the script must NOT run —
+    // it would register a second visit against defaultcampaignid.
     script: 'required',
     // Shipped statically in index / preclick / thankyou as <script type="text/plain" data-tracker-script="redtrack">.
     // Must match that tag's src; page.js warns if it drifts.
@@ -38,6 +42,7 @@ export const TRACKERS = Object.freeze({
     paths: Object.freeze({ click: 'click', preclick: null, postback: 'postback' }),
     postback: Object.freeze({ clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid' }),
     campaignParam: null,
+    modes: Object.freeze(['redirect']),
     // Redirect tracking needs no script. Voluum still recommends a lander script; paste it if you use one.
     script: 'optional',
     builtInScript: null,
@@ -55,6 +60,21 @@ export const DEFAULT_TRACKER = 'redtrack';
 export function isKnownTracker(key) {
   return typeof key === 'string' && Object.prototype.hasOwnProperty.call(TRACKERS, key);
 }
+
+export const MODE_LABELS = Object.freeze({
+  redirect: 'Redirect (302 → this page, click ID in URL)',
+  script: 'No-redirect (tracker script on this page)',
+});
+
+/** The tracking mode for a config, constrained to what the tracker supports. */
+export function modeOf(config) {
+  const tracker = trackerOf(config);
+  const wanted = config?.mode;
+  return tracker.modes.includes(wanted) ? wanted : tracker.modes[0];
+}
+
+/** True when the tracker's script should run on this page under the current config. */
+export const scriptModeActive = (config) => modeOf(config) === 'script';
 
 /** The profile for a config. Unknown or missing tracker keys fall back to the default. */
 export function trackerOf(config) {

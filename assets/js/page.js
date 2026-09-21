@@ -5,11 +5,13 @@
 import { readConfig } from './config.js';
 import { parseQuery } from './params.js';
 import { parseCookies, resolveClickId, readStoredClickId, persistClickId } from './clickid.js';
-import { trackerOf } from './trackers.js';
+import { trackerOf, modeOf, MODE_LABELS } from './trackers.js';
 import { createLog, appendEntry } from './log.js';
 import { renderInspector, renderLog } from './inspector.js';
 import { renderBanner } from './banner.js';
 import { activateBuiltInScript } from './redtrack.js';
+
+const COOKIE_RECHECK_MS = 3000;
 
 export function bootstrap({ persist = false } = {}) {
   const logNode = document.getElementById('event-log');
@@ -24,20 +26,29 @@ export function bootstrap({ persist = false } = {}) {
 
   const { config, applied, errors } = readConfig(window.localStorage, window.location.search);
   const tracker = trackerOf(config);
+  const mode = modeOf(config);
   errors.forEach((message) => log('error', message));
-  log('info', `Tracker profile: ${tracker.label}.`, `click params ${tracker.clickParams.join(' > ')} · cookie ${tracker.cookie}`);
+  log('info', `Tracker profile: ${tracker.label} · mode: ${mode}.`, `${MODE_LABELS[mode]} · click params ${tracker.clickParams.join(' > ')} · cookie ${tracker.cookie}`);
 
-  // The tracker script ships in the HTML but only runs for the active profile.
-  const builtIn = activateBuiltInScript(document, tracker, {
+  // The tracker script ships in the HTML but only runs for the active profile AND only in
+  // script mode. In redirect mode the 302 already recorded the click; running the script
+  // would register a second visit against the script's default campaign.
+  const builtIn = mode !== 'script'
+    ? Object.freeze({ activated: false, reason: `mode is ${mode}; the click was recorded by the tracker redirect` })
+    : activateBuiltInScript(document, tracker, {
     onLoad: (src) => {
-      const now = parseCookies(document.cookie)[tracker.cookie] ?? '';
       log('ok', `${tracker.label} built-in script loaded.`, src);
-      log(now === '' ? 'warn' : 'ok', `${tracker.cookie} cookie after the script ran: ${now === '' ? '(not set by the script)' : now}`);
+      // The script registers the visit over XHR and writes its cookie only after the reply,
+      // so check once the network has had a moment — checking at load would always say "not set".
+      setTimeout(() => {
+        const now = parseCookies(document.cookie)[tracker.cookie] ?? '';
+        log(now === '' ? 'warn' : 'ok', `${tracker.cookie} cookie ${COOKIE_RECHECK_MS / 1000}s after the script ran: ${now === '' ? '(not set by the script)' : now}`);
+      }, COOKIE_RECHECK_MS);
     },
     onError: (message) => log('error', message),
   });
   if (builtIn.activated) log('info', `${tracker.label} built-in script activated from the page HTML.`, builtIn.src);
-  else if (tracker.builtInScript) log('warn', `Built-in ${tracker.label} script not activated: ${builtIn.reason}.`);
+  else if (tracker.builtInScript) log(mode === 'script' ? 'warn' : 'info', `Built-in ${tracker.label} script not activated: ${builtIn.reason}.`);
   if (applied.length > 0) log('info', `Settings overridden by URL: ${applied.join(', ')}`);
 
   const params = parseQuery(window.location.search);
@@ -50,8 +61,10 @@ export function bootstrap({ persist = false } = {}) {
   });
 
   if (clickid === '') {
-    log('warn', 'No click ID found in the URL, cookie or localStorage.',
-      `Open this page through a ${tracker.label} campaign link, or append ?${tracker.clickParams[0]}=test123 to try the flow.`);
+    log(mode === 'redirect' ? 'error' : 'warn', 'No click ID found in the URL, cookie or localStorage.',
+      mode === 'redirect'
+        ? `In redirect mode the ${tracker.label} 302 must append ?${tracker.clickParams[0]}={clickid} to this page's URL — check the lander URL in the campaign.`
+        : `Open this page through a ${tracker.label} campaign link, or append ?${tracker.clickParams[0]}=test123 to try the flow.`);
   } else {
     log('ok', `Click ID resolved from ${source}.`, clickid);
     if (persist && source === 'url') {
@@ -76,10 +89,10 @@ export function bootstrap({ persist = false } = {}) {
     source,
     cookieName: tracker.cookie,
     cookieValue: cookiesNow[tracker.cookie] ?? '',
-    trackerLabel: tracker.label,
+    trackerLabel: `${tracker.label} · ${mode}`,
     referrer: document.referrer,
     href: window.location.href,
   });
 
-  return Object.freeze({ config, tracker, params, clickid, source, cookies: cookiesNow, validation, log });
+  return Object.freeze({ config, tracker, mode, params, clickid, source, cookies: cookiesNow, validation, log });
 }

@@ -4,6 +4,7 @@
  */
 import { el, mount } from './dom.js';
 import { validateConfig } from './config.js';
+import { trackerOf, modeOf } from './trackers.js';
 
 export function renderBanner(node, config, { settingsHref = './settings.html' } = {}) {
   if (!node) return validateConfig(config);
@@ -11,7 +12,7 @@ export function renderBanner(node, config, { settingsHref = './settings.html' } 
   const result = validateConfig(config);
   if (result.valid) {
     mount(node, el('div', { class: 'banner ok' }, [
-      el('strong', { text: 'Configured.' }),
+      el('strong', { text: `Configured — ${trackerOf(config).label} · ${modeOf(config)}.` }),
       el('span', {
         text: config.campaignId
           ? ` Tracking domain ${config.trackingDomain}, campaign ${config.campaignId}.`

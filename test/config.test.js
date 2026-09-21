@@ -30,6 +30,7 @@ function throwingStorage(message) {
 
 const COMPLETE = Object.freeze({
   tracker: 'redtrack',
+  mode: 'redirect',
   trackingDomain: 'track.example.com',
   campaignId: 'cmp1',
   offerUrl: 'https://offer.example.com',
@@ -117,6 +118,23 @@ test('validateConfig flags an unknown tracker but keeps validating with the defa
   assert.equal(result.valid, false);
   assert.equal(result.errors.length, 1);
   assert.match(result.errors[0], /Unknown tracker "mystery"/);
+});
+
+test('validateConfig (redirect mode) never asks for a script, even without a built-in one', () => {
+  const noBuiltIn = validateConfig({ ...COMPLETE, mode: 'redirect', universalScript: '' });
+  assert.equal(noBuiltIn.valid, true);
+});
+
+test('validateConfig reports a mode the tracker does not support and says what it uses instead', () => {
+  const result = validateConfig({ ...COMPLETE, tracker: 'voluum', mode: 'script', campaignId: '' });
+  assert.equal(result.valid, false);
+  assert.match(result.errors[0], /Mode "script" is not supported by Voluum — using redirect/);
+});
+
+test('applyUrlOverrides accepts rt_mode', () => {
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_mode=script');
+  assert.equal(config.mode, 'script');
+  assert.deepEqual(applied, ['mode']);
 });
 
 test('applyUrlOverrides accepts rt_tracker', () => {

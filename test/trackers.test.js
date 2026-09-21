@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { TRACKERS, TRACKER_KEYS, DEFAULT_TRACKER, trackerOf, isKnownTracker } from '../assets/js/trackers.js';
+import { TRACKERS, TRACKER_KEYS, DEFAULT_TRACKER, trackerOf, isKnownTracker, modeOf, scriptModeActive, MODE_LABELS } from '../assets/js/trackers.js';
 
 const REQUIRED = ['key', 'label', 'clickParams', 'cookie', 'paths', 'postback', 'campaignParam', 'script', 'notes'];
 
@@ -48,6 +48,26 @@ test('trackerOf falls back to the default for unknown or missing keys', () => {
   assert.equal(trackerOf({ tracker: 'nope' }).key, DEFAULT_TRACKER);
   assert.equal(trackerOf({}).key, DEFAULT_TRACKER);
   assert.equal(trackerOf(undefined).key, DEFAULT_TRACKER);
+});
+
+test('every profile lists supported modes, redirect first, all labelled', () => {
+  for (const key of TRACKER_KEYS) {
+    const t = TRACKERS[key];
+    assert.ok(t.modes.length > 0, `${key}.modes`);
+    assert.equal(t.modes[0], 'redirect', `${key} should default to redirect`);
+    for (const m of t.modes) assert.ok(MODE_LABELS[m], `label for ${m}`);
+  }
+  assert.deepEqual([...TRACKERS.redtrack.modes], ['redirect', 'script']);
+  assert.deepEqual([...TRACKERS.voluum.modes], ['redirect']);
+});
+
+test('modeOf honours a supported mode and snaps an unsupported one to the tracker default', () => {
+  assert.equal(modeOf({ tracker: 'redtrack', mode: 'script' }), 'script');
+  assert.equal(modeOf({ tracker: 'redtrack', mode: 'bogus' }), 'redirect');
+  assert.equal(modeOf({ tracker: 'voluum', mode: 'script' }), 'redirect', 'Voluum has no script mode');
+  assert.equal(modeOf({}), 'redirect');
+  assert.equal(scriptModeActive({ tracker: 'redtrack', mode: 'script' }), true);
+  assert.equal(scriptModeActive({ tracker: 'redtrack' }), false);
 });
 
 test('isKnownTracker rejects prototype keys and non-strings', () => {

@@ -10,9 +10,11 @@ import { el, mount } from '../dom.js';
 import { ctaLink, navLink } from '../cta.js';
 
 const page = bootstrap({ persist: true });
-const { config, tracker, params, clickid, log } = page;
+const { config, tracker, mode, params, clickid, log } = page;
 
-if (config.universalScript.trim() !== '') {
+if (config.universalScript.trim() !== '' && mode !== 'script') {
+  log('warn', `A pasted script is ignored in ${mode} mode — it would record a second visit. Switch mode to script to run it.`);
+} else if (config.universalScript.trim() !== '') {
   const result = injectScript(document, config.universalScript, {
     onLoad: (src) => log('ok', 'Universal script loaded.', src),
     onError: (message) => log('error', message),
@@ -20,8 +22,8 @@ if (config.universalScript.trim() !== '') {
   });
   result.errors.forEach((message) => log('error', message));
   if (result.injected > 0) log('info', `Injected ${result.injected} script tag(s) from settings.`);
-} else if (tracker.script === 'optional') {
-  log('info', `${tracker.label}: no lander script pasted — that is fine for redirect tracking.`);
+} else if (mode === 'redirect') {
+  log('info', `${tracker.label} redirect mode: no lander script needed — the click was recorded before you arrived.`);
 }
 
 const passThrough = pickPassThrough(params);

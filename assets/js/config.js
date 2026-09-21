@@ -5,7 +5,7 @@
 import { DEFAULT_CONFIG, STORAGE_KEY, CONFIG_URL_OVERRIDES } from './constants.js';
 import { parseQuery } from './params.js';
 import { normalizeDomain } from './urls.js';
-import { trackerOf, isKnownTracker } from './trackers.js';
+import { trackerOf, isKnownTracker, modeOf, scriptModeActive } from './trackers.js';
 
 /** Coerce anything into a complete, frozen config. Unknown keys are dropped. */
 export function withDefaults(raw) {
@@ -69,9 +69,13 @@ export function applyUrlOverrides(config, search) {
 export function validateConfig(config) {
   const current = withDefaults(config);
   const tracker = trackerOf(current);
+  const modeKnown = tracker.modes.includes(current.mode);
   const errors = [
     !isKnownTracker(current.tracker)
       ? `Unknown tracker "${current.tracker}" — ${tracker.label} settings are being used.`
+      : null,
+    !modeKnown
+      ? `Mode "${current.mode}" is not supported by ${tracker.label} — using ${modeOf(current)}.`
       : null,
     normalizeDomain(current.trackingDomain) === ''
       ? 'Tracking domain is missing — CTA and postback URLs cannot be built.'
@@ -80,7 +84,7 @@ export function validateConfig(config) {
       ? `Campaign ID (${tracker.campaignParam}) is missing.`
       : null,
     current.offerUrl.trim() === '' ? 'Offer URL is missing.' : null,
-    tracker.script === 'required' && !tracker.builtInScript && current.universalScript.trim() === ''
+    scriptModeActive(current) && tracker.script === 'required' && !tracker.builtInScript && current.universalScript.trim() === ''
       ? `No ${tracker.label} script pasted — click recording will not happen.`
       : null,
   ].filter(Boolean);

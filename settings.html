@@ -33,6 +33,12 @@
           <span class="hint">Decides the click-ID parameter, endpoint paths, postback parameter names, and which fields below are required.</span>
           <select name="tracker"></select>
         </label>
+
+        <label>
+          Tracking mode
+          <span class="hint"><strong>Redirect</strong>: the tracker 302s to this page with the click ID in the URL (PropellerAds and most sources) — no script runs here. <strong>No-redirect</strong>: the tracker's script on this page records the click (the Meta flow).</span>
+          <select name="mode"></select>
+        </label>
         <div id="tracker-notes"></div>
 
         <label>
@@ -91,6 +97,7 @@
       <table>
         <tbody>
           <tr><td class="k">?rt_tracker=</td><td class="v">tracker profile (redtrack, voluum)</td></tr>
+          <tr><td class="k">?rt_mode=</td><td class="v">redirect or script</td></tr>
           <tr><td class="k">?rt_domain=</td><td class="v">tracking domain</td></tr>
           <tr><td class="k">?rt_cmpid=</td><td class="v">campaign ID</td></tr>
           <tr><td class="k">?rt_offer=</td><td class="v">offer URL</td></tr>

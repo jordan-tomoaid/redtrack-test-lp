@@ -16,6 +16,10 @@ export const TRACKING_PARAMS = Object.freeze([
 
 export const DEFAULT_CONFIG = Object.freeze({
   tracker: DEFAULT_TRACKER,
+  // How the click is recorded: 'redirect' (tracker 302s to this page, click ID in the URL) or
+  // 'script' (no-redirect; the tracker's script on this page records the click). Redirect is
+  // what PropellerAds and most sources use; script is the Meta flow.
+  mode: 'redirect',
   trackingDomain: '',
   campaignId: '',
   offerUrl: '',
@@ -28,6 +32,7 @@ export const CONVERSION_TYPES = Object.freeze(['Lead', 'Sale', 'Purchase', 'Sign
 // Query params that override stored settings for a single visit.
 export const CONFIG_URL_OVERRIDES = Object.freeze({
   rt_tracker: 'tracker',
+  rt_mode: 'mode',
   rt_domain: 'trackingDomain',
   rt_cmpid: 'campaignId',
   rt_offer: 'offerUrl',

@@ -27,13 +27,13 @@ mount(document.getElementById('cta-area'), [
   ctaLink({
     label: 'Continue to offer via /click',
     hint: `Completes the two-step flow. ${tracker.label} records the click here.`,
-    build: () => buildClickUrl(config, { ...passThrough, [tracker.clickParams[0]]: clickid }),
+    build: () => buildClickUrl(config, { ...passThrough, [tracker.outParam]: clickid }),
     log,
   }),
   ctaLink({
     label: 'Continue straight to the offer URL',
     hint: 'Bypasses RedTrack, carrying the click ID by hand.',
-    build: () => appendParams(config.offerUrl, { ...passThrough, [tracker.clickParams[0]]: clickid }),
+    build: () => appendParams(config.offerUrl, { ...passThrough, [tracker.outParam]: clickid }),
     log,
   }),
   navLink({ label: 'Back to the landing page', href: './index.html' }),

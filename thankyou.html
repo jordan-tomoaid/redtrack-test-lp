@@ -23,59 +23,7 @@
   <main>
     <div id="config-banner"></div>
 
-    <section class="card">
-      <h2>Fire a conversion</h2>
-      <p class="lede" id="fire-lede">The click ID is prefilled from this visit. Edit any field to rebuild the URL.</p>
-
-      <form class="grid" onsubmit="return false">
-        <div class="field-row">
-          <label>
-            Click ID
-            <span class="hint">Sent as <code id="k-clickid">clickid</code>.</span>
-            <input id="pb-clickid" type="text" autocomplete="off" placeholder="not captured yet">
-          </label>
-          <label>
-            Sum
-            <span class="hint">Sent as <code id="k-sum">sum</code>, the conversion payout.</span>
-            <input id="pb-sum" type="text" autocomplete="off" inputmode="decimal">
-          </label>
-          <label>
-            Type
-            <span class="hint">Sent as <code id="k-type">type</code>. Must match a conversion type defined in the tracker.</span>
-            <input id="pb-type" type="text" autocomplete="off" placeholder="Lead">
-          </label>
-          <label id="txid-field">
-            Transaction ID
-            <span class="hint">Sent as <code id="k-txid">txid</code>. De-duplicates conversions; optional.</span>
-            <input id="pb-txid" type="text" autocomplete="off" placeholder="order-1001">
-          </label>
-        </div>
-
-        <div>
-          <span class="muted">Preset types</span>
-          <div class="row" id="type-buttons" style="margin-top:.4rem"></div>
-        </div>
-
-        <div>
-          <span class="muted">Postback URL</span>
-          <div id="postback-url" style="margin-top:.4rem"></div>
-        </div>
-
-        <div class="row">
-          <button class="btn primary" type="button" id="send-fetch">Send via fetch</button>
-          <button class="btn" type="button" id="send-pixel">Send via image pixel</button>
-          <button class="btn" type="button" id="build-url">Rebuild URL</button>
-          <button class="btn" type="button" id="copy-url">Copy URL</button>
-        </div>
-
-        <p class="note">
-          A browser cannot read a cross-origin postback response, so neither transport can
-          confirm that RedTrack accepted the hit &mdash; only that the request left the browser.
-          Always verify the conversion in the RedTrack dashboard. For a true server-to-server
-          test, copy the URL and call it with <code>curl</code>.
-        </p>
-      </form>
-    </section>
+    <section class="card" id="conversion-panel"></section>
 
     <section class="card">
       <h2>Inbound parameters</h2>

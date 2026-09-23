@@ -11,6 +11,8 @@ export const TRACKERS = Object.freeze({
     label: 'RedTrack',
     // Checked in this order when resolving an inbound click ID.
     clickParams: Object.freeze(['rtkcid', 'clickid', 'rtkclickid']),
+    // The name to use when WE put the click ID on a URL (lander URL, direct-to-offer).
+    outParam: 'clickid',
     // RedTrack requires this exact cookie name. The docs state it must not be renamed.
     cookie: 'rtkclickid-store',
     paths: Object.freeze({ click: 'click', preclick: 'preclick', postback: 'postback' }),
@@ -27,7 +29,8 @@ export const TRACKERS = Object.freeze({
     // Must match that tag's src; page.js warns if it drifts.
     builtInScript: 'https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&cookiedomain=&cookieduration=90&defaultcampaignid=6aa0cde2056bd43dd734e77c&regviewonce=false&script_id=6aa0d33e056bd43dd735a8f1',
     notes: Object.freeze([
-      'Generate the universal script in RedTrack under Tools → Scripts → New and paste it in settings; without it this visit is not recorded as a click.',
+      'Redirect mode (PropellerAds and most sources): the click is recorded by the 302 before you arrive; nothing on this page needs to run. Put ?clickid={clickid} on the lander URL in the campaign.',
+      'Script mode (Meta, no-redirect): the universal script on this page records the visit and sets rtkclickid-store; switch mode in settings only for that flow.',
     ]),
   }),
   voluum: Object.freeze({
@@ -36,6 +39,7 @@ export const TRACKERS = Object.freeze({
     // Voluum does not fix the lander parameter name — you choose it in the lander URL
     // (e.g. ?cid={clickid}). cid is the conventional choice and matches the postback.
     clickParams: Object.freeze(['cid', 'clickid']),
+    outParam: 'cid',
     // Voluum does not prescribe a lander cookie; this name is ours.
     cookie: 'voluum-clickid-store',
     // Multi-offer landers use /click/1, /click/2 … — not modelled yet.

@@ -14,6 +14,7 @@ test('every profile carries the full shape and is frozen', () => {
     assert.ok(['required', 'optional'].includes(t.script));
     assert.ok(t.paths.click && t.paths.postback, `${key} must have click and postback paths`);
     assert.ok(t.postback.clickid, `${key} must map the click ID postback param`);
+    assert.ok(t.clickParams.includes(t.outParam), `${key}.outParam must be one of its own clickParams`);
   }
 });
 
@@ -24,6 +25,7 @@ test('RedTrack profile keeps the names its docs mandate', () => {
   assert.deepEqual({ ...t.postback }, { clickid: 'clickid', sum: 'sum', type: 'type', txid: null });
   assert.equal(t.campaignParam, 'cmpid');
   assert.equal(t.paths.preclick, 'preclick');
+  assert.equal(t.outParam, 'clickid', 'lander URLs use clickid, not the rtkcid alias');
   assert.match(t.builtInScript, /^https:\/\/wmipr\.ttrk\.io\/uniclick\.js\?/);
 });
 
@@ -38,6 +40,7 @@ test('Voluum profile uses cid / payout / et / txid and has no preclick or campai
   const t = TRACKERS.voluum;
   assert.deepEqual({ ...t.postback }, { clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid' });
   assert.equal(t.clickParams[0], 'cid');
+  assert.equal(t.outParam, 'cid');
   assert.equal(t.paths.preclick, null);
   assert.equal(t.campaignParam, null);
   assert.equal(t.script, 'optional');

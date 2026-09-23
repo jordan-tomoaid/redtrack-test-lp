@@ -66,7 +66,7 @@ Nothing on this page is source-specific in redirect mode. In RedTrack:
 
 1. Campaign → lander URL: `https://jordan-tomoaid.github.io/redtrack-test-lp/?clickid={clickid}` (add `&sub1={sub1}…` for whatever you map from the source).
 2. Open the **campaign URL** (not this page directly). The inspector shows the click ID that RedTrack issued and every sub that arrived.
-3. Conversion page → **Copy URL** → `curl -i "<url>"` so you see the HTTP status; leave `type` empty on the first run.
+3. On the landing page itself, **Fire a conversion** → **Send conversion**. The event log shows RedTrack's real HTTP status and reply (`HTTP 200 — status=1 message=OK`), because RedTrack's `/postback` allows cross-origin reads. Leave `type` empty on the first run. A **Copy curl** button gives the identical request for a terminal if you prefer.
 
 ## Setup
 
@@ -101,11 +101,11 @@ testing a second account without overwriting what you saved.
 
 ## Two limitations, stated plainly
 
-**Postbacks sent from a browser are opaque.** CORS prevents reading the
-response, so neither the `fetch` nor the pixel transport can confirm RedTrack
-accepted the hit — only that the request left the browser. Always verify in the
-dashboard. For a real server-to-server test, copy the URL and run it through
-`curl`.
+**Browser postbacks are readable only when the tracker allows it.** RedTrack's
+`/postback` sends `Access-Control-Allow-Origin: *`, so **Send conversion** shows
+the real HTTP status and JSON reply. A tracker without that header makes the
+page fall back to an opaque send: the request still reaches the tracker, but the
+log says the reply was unreadable — use **Copy curl** then.
 
 **The click ID cookie is host-only on `*.github.io`.** `github.io` is on the
 public suffix list, so no `Domain` attribute can be set. Cross-subdomain cookie

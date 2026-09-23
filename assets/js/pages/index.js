@@ -8,6 +8,7 @@ import { buildClickUrl, buildPreClickUrl, appendParams } from '../urls.js';
 import { pickPassThrough } from '../params.js';
 import { el, mount } from '../dom.js';
 import { ctaLink, navLink } from '../cta.js';
+import { renderConversionPanel } from '../conversion.js';
 
 const page = bootstrap({ persist: true });
 const { config, tracker, mode, params, clickid, log } = page;
@@ -44,7 +45,7 @@ mount(document.getElementById('cta-area'), [
   ctaLink({
     label: 'Go straight to the offer URL',
     hint: 'Skips RedTrack and appends the click ID directly. Useful for isolating a redirect problem.',
-    build: () => appendParams(config.offerUrl, { ...passThrough, [tracker.clickParams[0]]: clickid }),
+    build: () => appendParams(config.offerUrl, { ...passThrough, [tracker.outParam]: clickid }),
     log,
   }),
   navLink({
@@ -58,3 +59,13 @@ mount(document.getElementById('tracker-notes'), [
   el('h3', { text: `${tracker.label} notes` }),
   el('ul', { class: 'notes' }, tracker.notes.map((note) => el('li', { text: note }))),
 ]);
+
+// Fire from here while the click ID is guaranteed to be in the URL — the moment a real
+// lander's CTA would trigger the conversion. No need to walk to the conversion page first.
+renderConversionPanel(document.getElementById('conversion-panel'), {
+  config,
+  clickid,
+  log,
+  title: 'Fire a conversion from this page',
+  lede: `Uses the click ID captured above. Sends to ${tracker.label} at /${tracker.paths.postback}; the HTTP status and reply land in the event log below.`,
+});

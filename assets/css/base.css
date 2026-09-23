@@ -126,3 +126,9 @@ input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 
 ul.notes { margin: 0; padding-left: 1.1rem; font-size: .82rem; color: var(--muted); }
 ul.notes li { margin: .2rem 0; }
 select { appearance: auto; }
+
+#conversion-panel { display: grid; gap: .9rem; }
+#conversion-panel > h2 { margin: 0; font-size: .95rem; }
+#conversion-panel > p.lede { margin: -.5rem 0 0; color: var(--muted); font-size: .85rem; }
+#conversion-panel label { display: grid; gap: .3rem; font-size: .85rem; }
+#conversion-panel label span.hint { color: var(--muted); font-size: .78rem; font-family: var(--mono); }

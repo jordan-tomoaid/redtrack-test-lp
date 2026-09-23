@@ -13,7 +13,20 @@ import { activateBuiltInScript } from './redtrack.js';
 
 const COOKIE_RECHECK_MS = 3000;
 
-export function bootstrap({ persist = false } = {}) {
+/** True when diagnostics should be visible: ?debug=1 (or debug=true) on the URL. */
+export function debugRequested(search) {
+  const v = new URLSearchParams(String(search ?? '').replace(/^\?/, '')).get('debug');
+  return v === '1' || v === 'true';
+}
+
+/**
+ * @param {{persist?: boolean, debugOnly?: boolean}} opts
+ *   debugOnly: keep the diagnostic panels hidden unless ?debug=1 — for pages real
+ *   visitors see. Capture and logging still run; only the rendering is gated.
+ */
+export function bootstrap({ persist = false, debugOnly = false } = {}) {
+  const debug = !debugOnly || debugRequested(window.location.search);
+  document.querySelectorAll('[data-debug-only]').forEach((node) => { node.hidden = !debug; });
   const logNode = document.getElementById('event-log');
   const inspectorNode = document.getElementById('inspector');
   const bannerNode = document.getElementById('config-banner');
@@ -94,5 +107,5 @@ export function bootstrap({ persist = false } = {}) {
     href: window.location.href,
   });
 
-  return Object.freeze({ config, tracker, mode, params, clickid, source, cookies: cookiesNow, validation, log });
+  return Object.freeze({ config, tracker, mode, params, clickid, source, cookies: cookiesNow, validation, log, debug });
 }

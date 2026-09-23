@@ -94,11 +94,15 @@ test('validateConfig passes only when every required field is present', () => {
   assert.deepEqual(validateConfig(COMPLETE).errors, []);
 });
 
+test('DEFAULT_CONFIG ships the RedTrack host as tracking domain', () => {
+  assert.equal(DEFAULT_CONFIG.trackingDomain, '7mtrp.ttrk.io');
+});
+
 test('validateConfig names each missing field; the built-in RedTrack script satisfies the script check', () => {
   const result = validateConfig(DEFAULT_CONFIG);
   assert.equal(result.valid, false);
-  assert.equal(result.errors.length, 3);
-  assert.match(result.errors.join(' '), /Tracking domain/);
+  assert.equal(result.errors.length, 2, 'tracking domain is defaulted, so only cmpid and offer are missing');
+  assert.doesNotMatch(result.errors.join(' '), /Tracking domain/);
   assert.match(result.errors.join(' '), /Campaign ID/);
   assert.match(result.errors.join(' '), /Offer URL/);
   assert.doesNotMatch(result.errors.join(' '), /script pasted/);

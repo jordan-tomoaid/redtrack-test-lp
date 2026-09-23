@@ -14,6 +14,7 @@ screen, so a failure is never silent.
 
 | Page | What it does |
 | --- | --- |
+| `lp.html` | **The page to point real traffic at.** Social casino lander: one CTA to the tracker's `/click`. Diagnostics hidden unless `?debug=1`. |
 | `index.html` | Landing page. Injects your universal script, resolves and persists the click ID, and builds `/click`, `/preclick` and direct-to-offer CTAs. |
 | `preclick.html` | Pre-lander for the two-step flow. Confirms the click ID survived the hop. |
 | `thankyou.html` | Fires conversions by type with an editable `sum`, and builds raw postback URLs you can copy. |
@@ -64,7 +65,7 @@ log says so.
 
 Nothing on this page is source-specific in redirect mode. In RedTrack:
 
-1. Campaign → lander URL: `https://jordan-tomoaid.github.io/redtrack-test-lp/?clickid={clickid}` (add `&sub1={sub1}…` for whatever you map from the source).
+1. Campaign → lander URL: `https://jordan-tomoaid.github.io/redtrack-test-lp/lp.html?clickid={clickid}` (append `&debug=1` while testing to see the panels) (add `&sub1={sub1}…` for whatever you map from the source).
 2. Open the **campaign URL** (not this page directly). The inspector shows the click ID that RedTrack issued and every sub that arrived.
 3. On the landing page itself, **Fire a conversion** → **Send conversion**. The event log shows RedTrack's real HTTP status and reply (`HTTP 200 — status=1 message=OK`), because RedTrack's `/postback` allows cross-origin reads. Leave `type` empty on the first run. A **Copy curl** button gives the identical request for a terminal if you prefer.
 

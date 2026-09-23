@@ -20,7 +20,8 @@ export const DEFAULT_CONFIG = Object.freeze({
   // 'script' (no-redirect; the tracker's script on this page records the click). Redirect is
   // what PropellerAds and most sources use; script is the Meta flow.
   mode: 'redirect',
-  trackingDomain: '',
+  // Your RedTrack host. Swap for the custom domain once its CNAME resolves; ?rt_domain= still overrides.
+  trackingDomain: '7mtrp.ttrk.io',
   campaignId: '',
   offerUrl: '',
   universalScript: '',

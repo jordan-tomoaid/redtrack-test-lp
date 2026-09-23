@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Lucky Coin Social Casino — Free Welcome Coins</title>
-  <meta name="description" content="Play free social casino slots. Claim your welcome coins — no purchase needed, no real money, just for fun.">
+  <title>Lucky Coin Social Casino — Create your free account</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23f3c452'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./assets/css/base.css">
   <link rel="stylesheet" href="./assets/css/lp.css">
@@ -13,19 +12,17 @@
 <body class="lp">
   <main class="lp-wrap">
     <span class="lp-badge">Free to play · Social casino</span>
-    <h1 class="lp-title">Your <em>welcome coins</em> are waiting</h1>
-    <p class="lp-sub">Spin classic slots for fun with a free daily coin bonus. No purchase needed to play.</p>
+    <h1 class="lp-title">Create your <em>free account</em></h1>
+    <p class="lp-sub">Your 100,000 welcome coins are one step away. No purchase needed.</p>
 
-    <div class="lp-coins">100,000<small>free coins on sign-up</small></div>
-
-    <a id="lp-cta" class="lp-cta" href="https://trk.fourleafgo.com/click" rel="nofollow">Claim my free coins</a>
+    <!-- Nothing typed here is stored or sent anywhere. The form only gates the button. -->
+    <form id="signup-form" class="lp-form" novalidate>
+      <label>Email<input name="email" type="email" required autocomplete="off" placeholder="you@example.com"></label>
+      <label>Password<input name="password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters"></label>
+      <button id="signup-submit" class="lp-cta" type="submit">Create account</button>
+      <p id="signup-error" class="lp-form-error" hidden></p>
+    </form>
     <p class="lp-cta-note">Free daily coins · No purchase needed · Play instantly</p>
-
-    <ul class="lp-points">
-      <li><b>Free daily coins</b><span>Come back every day for a fresh coin bonus.</span></li>
-      <li><b>Nothing to buy</b><span>Play every game with your free coins.</span></li>
-      <li><b>Just for fun</b><span>Coins have no cash value and cannot be withdrawn.</span></li>
-    </ul>
 
     <p class="lp-legal">
       <b>18+ only.</b> This is a social casino for entertainment purposes. It does not offer real-money
@@ -37,6 +34,7 @@
     <!-- Diagnostics: hidden for visitors, shown with ?debug=1 -->
     <div class="lp-debug" data-debug-only hidden>
       <div id="config-banner" data-debug-only hidden></div>
+      <section class="card" id="preset-panel" data-debug-only hidden></section>
       <section class="card" id="conversion-panel" data-debug-only hidden></section>
       <section class="card" data-debug-only hidden>
         <h2>Inbound parameters</h2>
@@ -51,9 +49,6 @@
     </div>
   </main>
 
-  <!-- RedTrack universal script, inert unless the profile is RedTrack AND mode is script (Meta flow).
-       In redirect mode (PropellerAds) the click was recorded by the 302; nothing here needs to run. -->
-  <script type="text/plain" data-tracker-script="redtrack" src="https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&amp;cookiedomain=&amp;cookieduration=90&amp;defaultcampaignid=6aa0cde2056bd43dd734e77c&amp;regviewonce=false&amp;script_id=6aa0d33e056bd43dd735a8f1"></script>
-  <script type="module" src="./assets/js/pages/lp.js"></script>
+  <script type="module" src="./assets/js/pages/signup.js"></script>
 </body>
 </html>

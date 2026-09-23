@@ -1,16 +1,21 @@
 /**
- * Conversion page: the shared conversion panel, with the click ID restored from
- * cookie / localStorage when it is no longer in the URL.
+ * Thank-you page: the end of the funnel. A visitor page — no postback is sent
+ * here, ever. With ?debug=1 the free-form conversion panel appears so a tester
+ * can re-send by hand (or copy the curl) if the sign-up send was blocked.
  */
 import { bootstrap } from '../page.js';
 import { renderConversionPanel } from '../conversion.js';
 
-const page = bootstrap({ persist: false });
-const { config, clickid, log } = page;
+const page = bootstrap({ persist: false, debugOnly: true });
+const { config, tracker, clickid, log, debug } = page;
 
-if (clickid === '') {
-  log('warn', 'No click ID available, so conversions cannot be attributed.',
-    'Visit the landing page through a campaign link first, or type a click ID below.');
+if (debug) {
+  if (clickid === '') log('warn', 'No click ID on this page — nothing can be attributed from here.');
+  renderConversionPanel(document.getElementById('conversion-panel'), {
+    config,
+    clickid,
+    log,
+    title: 'Re-send a conversion by hand',
+    lede: `Debug only. Nothing is sent automatically on this page. Sends to ${tracker.label} at /${tracker.paths.postback}.`,
+  });
 }
-
-renderConversionPanel(document.getElementById('conversion-panel'), { config, clickid, log });

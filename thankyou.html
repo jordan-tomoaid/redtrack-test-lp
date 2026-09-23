@@ -4,47 +4,41 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>RedTrack test — conversion</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%234d8dff'/%3E%3C/svg%3E">
+  <title>Lucky Coin Social Casino — You're in</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23f3c452'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/lp.css">
 </head>
-<body>
-  <header class="top">
-    <h1>RedTrack test harness — conversion</h1>
-    <p>Fires conversions against your tracking domain and builds raw postback URLs.</p>
-    <nav class="pages">
-      <a href="./lp.html?debug=1">Lander</a>
-      <a href="./index.html">Landing</a>
-      <a href="./preclick.html">Pre-lander</a>
-      <a href="./thankyou.html" aria-current="page">Conversion</a>
-      <a href="./settings.html">Settings</a>
-    </nav>
-  </header>
+<body class="lp">
+  <main class="lp-wrap">
+    <span class="lp-badge">Free to play · Social casino</span>
+    <h1 class="lp-title">You're in — your <em>coins</em> are on the way</h1>
+    <p class="lp-sub">Your free account is ready. Come back every day for a fresh coin bonus.</p>
+    <div class="lp-coins">100,000<small>welcome coins credited</small></div>
 
-  <main>
-    <div id="config-banner"></div>
+    <p class="lp-legal">
+      <b>18+ only.</b> This is a social casino for entertainment purposes. It does not offer real-money
+      gambling or the opportunity to win real money or prizes. Virtual coins have no cash value and
+      cannot be redeemed.
+    </p>
 
-    <section class="card" id="conversion-panel"></section>
-
-    <section class="card">
-      <h2>Inbound parameters</h2>
-      <p class="lede">Everything this page received. Compare it with what the campaign link should have passed.</p>
-      <div id="inspector"></div>
-    </section>
-
-    <section class="card">
-      <h2>Event log</h2>
-      <p class="lede">Newest first. Failures are recorded here rather than being swallowed.</p>
-      <div id="event-log"></div>
-    </section>
+    <!-- Diagnostics: hidden for visitors, shown with ?debug=1. Nothing here sends on load. -->
+    <div class="lp-debug" data-debug-only hidden>
+      <div id="config-banner" data-debug-only hidden></div>
+      <section class="card" id="conversion-panel" data-debug-only hidden></section>
+      <section class="card" data-debug-only hidden>
+        <h2>Inbound parameters</h2>
+        <p class="lede">Everything this page received.</p>
+        <div id="inspector"></div>
+      </section>
+      <section class="card" data-debug-only hidden>
+        <h2>Event log</h2>
+        <p class="lede">Newest first.</p>
+        <div id="event-log"></div>
+      </section>
+    </div>
   </main>
 
   <script type="module" src="./assets/js/pages/thankyou.js"></script>
-  <!-- RedTrack universal script, kept in the HTML at the end of <body> the way a production lander
-       ships it. Change the src here (and TRACKERS.redtrack.builtInScript) and push when the tracking
-       domain changes. type="text/plain" keeps the browser from fetching it; page.js activates it only
-       while the RedTrack profile is active, so a Voluum test cannot record phantom clicks against
-       defaultcampaignid. A pasted copy of the same src in settings is skipped, never loaded twice. -->
-  <script type="text/plain" data-tracker-script="redtrack" src="https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&amp;cookiedomain=&amp;cookieduration=90&amp;defaultcampaignid=6aa0cde2056bd43dd734e77c&amp;regviewonce=false&amp;script_id=6aa0d33e056bd43dd735a8f1"></script>
 </body>
 </html>

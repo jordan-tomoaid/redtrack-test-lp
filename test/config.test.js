@@ -76,15 +76,22 @@ test('parseStoredConfig rejects a JSON array or scalar', () => {
   assert.match(parseStoredConfig('"hello"').error, /not an object/);
 });
 
+test('applyUrlOverrides ignores every rt_ param unless ?debug=1 is present (open-redirect guard)', () => {
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_domain=evil.example&rt_offer=https://evil.example/');
+  assert.equal(config.trackingDomain, DEFAULT_CONFIG.trackingDomain);
+  assert.equal(config.offerUrl, '');
+  assert.deepEqual(applied, []);
+});
+
 test('applyUrlOverrides maps rt_ params onto config fields', () => {
-  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_domain=t.com&rt_cmpid=c9');
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?debug=1&rt_domain=t.com&rt_cmpid=c9');
   assert.equal(config.trackingDomain, 't.com');
   assert.equal(config.campaignId, 'c9');
   assert.deepEqual([...applied].sort(), ['campaignId', 'trackingDomain']);
 });
 
 test('applyUrlOverrides ignores blank overrides and reports nothing applied', () => {
-  const { config, applied } = applyUrlOverrides(withDefaults({ campaignId: 'keep' }), '?rt_cmpid=');
+  const { config, applied } = applyUrlOverrides(withDefaults({ campaignId: 'keep' }), '?debug=1&rt_cmpid=');
   assert.equal(config.campaignId, 'keep');
   assert.deepEqual(applied, []);
 });
@@ -95,15 +102,15 @@ test('validateConfig passes only when every required field is present', () => {
 });
 
 test('DEFAULT_CONFIG ships the RedTrack host as tracking domain', () => {
-  assert.equal(DEFAULT_CONFIG.trackingDomain, '7mtrp.ttrk.io');
+  assert.equal(DEFAULT_CONFIG.trackingDomain, 'trk.fourleafgo.com');
 });
 
 test('validateConfig names each missing field; the built-in RedTrack script satisfies the script check', () => {
   const result = validateConfig(DEFAULT_CONFIG);
   assert.equal(result.valid, false);
-  assert.equal(result.errors.length, 2, 'tracking domain is defaulted, so only cmpid and offer are missing');
+  assert.equal(result.errors.length, 1, 'domain is defaulted and cmpid is optional, so only the offer URL is missing');
   assert.doesNotMatch(result.errors.join(' '), /Tracking domain/);
-  assert.match(result.errors.join(' '), /Campaign ID/);
+  assert.doesNotMatch(result.errors.join(' '), /Campaign ID/, 'cmpid is never required — the tracker identifies the campaign itself');
   assert.match(result.errors.join(' '), /Offer URL/);
   assert.doesNotMatch(result.errors.join(' '), /script pasted/);
 });
@@ -136,13 +143,13 @@ test('validateConfig reports a mode the tracker does not support and says what i
 });
 
 test('applyUrlOverrides accepts rt_mode', () => {
-  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_mode=script');
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?debug=1&rt_mode=script');
   assert.equal(config.mode, 'script');
   assert.deepEqual(applied, ['mode']);
 });
 
 test('applyUrlOverrides accepts rt_tracker', () => {
-  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?rt_tracker=voluum');
+  const { config, applied } = applyUrlOverrides(DEFAULT_CONFIG, '?debug=1&rt_tracker=voluum');
   assert.equal(config.tracker, 'voluum');
   assert.deepEqual(applied, ['tracker']);
 });
@@ -153,7 +160,7 @@ test('validateConfig treats a scheme-only domain as missing', () => {
 
 test('readConfig combines stored values with URL overrides', () => {
   const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(COMPLETE) });
-  const { config, applied, errors } = readConfig(storage, '?rt_cmpid=override');
+  const { config, applied, errors } = readConfig(storage, '?debug=1&rt_cmpid=override');
   assert.equal(config.trackingDomain, 'track.example.com');
   assert.equal(config.campaignId, 'override');
   assert.deepEqual(applied, ['campaignId']);

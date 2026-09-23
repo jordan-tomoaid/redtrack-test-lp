@@ -22,7 +22,7 @@ test('RedTrack profile keeps the names its docs mandate', () => {
   const t = TRACKERS.redtrack;
   assert.equal(t.cookie, 'rtkclickid-store');
   assert.deepEqual([...t.clickParams], ['rtkcid', 'clickid', 'rtkclickid']);
-  assert.deepEqual({ ...t.postback }, { clickid: 'clickid', sum: 'sum', type: 'type', txid: null });
+  assert.deepEqual({ ...t.postback }, { clickid: 'clickid', sum: 'sum', type: 'type', txid: 'rdtk_event_id', status: 'status' });
   assert.equal(t.campaignParam, 'cmpid');
   assert.equal(t.paths.preclick, 'preclick');
   assert.equal(t.outParam, 'clickid', 'lander URLs use clickid, not the rtkcid alias');
@@ -38,7 +38,7 @@ test('every profile declares builtInScript explicitly (string or null)', () => {
 
 test('Voluum profile uses cid / payout / et / txid and has no preclick or campaign param', () => {
   const t = TRACKERS.voluum;
-  assert.deepEqual({ ...t.postback }, { clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid' });
+  assert.deepEqual({ ...t.postback }, { clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid', status: null });
   assert.equal(t.clickParams[0], 'cid');
   assert.equal(t.outParam, 'cid');
   assert.equal(t.paths.preclick, null);

@@ -12,6 +12,7 @@ export const CLICKID_COOKIE_DAYS = 30;
 export const TRACKING_PARAMS = Object.freeze([
   'clickid', 'rtkcid', 'rtkclickid', 'cmpid', 'campaign_id', 'rt_campaignid', 'type', 'sum',
   'cid', 'payout', 'et', 'txid', 'cep',
+  'status', 'rdtk_event_id',
 ]);
 
 export const DEFAULT_CONFIG = Object.freeze({
@@ -20,15 +21,16 @@ export const DEFAULT_CONFIG = Object.freeze({
   // 'script' (no-redirect; the tracker's script on this page records the click). Redirect is
   // what PropellerAds and most sources use; script is the Meta flow.
   mode: 'redirect',
-  // Your RedTrack host. Swap for the custom domain once its CNAME resolves; ?rt_domain= still overrides.
-  trackingDomain: '7mtrp.ttrk.io',
+  // Verified 2026-09-23: /postback here answers status:1 for this account's click IDs.
+  trackingDomain: 'trk.fourleafgo.com',
   campaignId: '',
   offerUrl: '',
   universalScript: '',
-  defaultSum: '1.00',
+  defaultSum: '0',   // reg carries no amount
 });
 
-export const CONVERSION_TYPES = Object.freeze(['Lead', 'Sale', 'Purchase', 'Signup', 'Deposit']);
+// Must match the Conversion types defined in the tracker account, case-sensitively.
+export const CONVERSION_TYPES = Object.freeze(['reg', 'ftd', 'redeposit']);
 
 // Query params that override stored settings for a single visit.
 export const CONFIG_URL_OVERRIDES = Object.freeze({

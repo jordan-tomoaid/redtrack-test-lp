@@ -13,11 +13,8 @@ import { activateBuiltInScript } from './redtrack.js';
 
 const COOKIE_RECHECK_MS = 3000;
 
-/** True when diagnostics should be visible: ?debug=1 (or debug=true) on the URL. */
-export function debugRequested(search) {
-  const v = new URLSearchParams(String(search ?? '').replace(/^\?/, '')).get('debug');
-  return v === '1' || v === 'true';
-}
+import { debugRequested } from './debug.js';
+export { debugRequested };
 
 /**
  * @param {{persist?: boolean, debugOnly?: boolean}} opts

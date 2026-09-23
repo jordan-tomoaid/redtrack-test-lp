@@ -17,7 +17,8 @@ export const TRACKERS = Object.freeze({
     cookie: 'rtkclickid-store',
     paths: Object.freeze({ click: 'click', preclick: 'preclick', postback: 'postback' }),
     // Our field name -> the query parameter this tracker expects. null = not supported.
-    postback: Object.freeze({ clickid: 'clickid', sum: 'sum', type: 'type', txid: null }),
+    // txid → rdtk_event_id: RedTrack's de-duplication token ("Ignore duplicate postbacks by event id").
+    postback: Object.freeze({ clickid: 'clickid', sum: 'sum', type: 'type', txid: 'rdtk_event_id', status: 'status' }),
     campaignParam: 'cmpid',
     // Tracking modes this tracker supports; the first is the default.
     modes: Object.freeze(['redirect', 'script']),
@@ -25,8 +26,11 @@ export const TRACKERS = Object.freeze({
     // In 'redirect' mode the click is recorded by the 302 and the script must NOT run —
     // it would register a second visit against defaultcampaignid.
     script: 'required',
-    // Shipped statically in index / preclick / thankyou as <script type="text/plain" data-tracker-script="redtrack">.
+    // Shipped statically in index / preclick / lp as <script type="text/plain" data-tracker-script="redtrack">.
     // Must match that tag's src; page.js warns if it drifts.
+    // TODO: this is the OLD account's universal script (wmipr, defaultcampaignid 6aa0cde2…). Inert in
+    // redirect mode, so harmless for PropellerAds; replace when the Meta no-redirect flow is rebuilt
+    // on the new account.
     builtInScript: 'https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&cookiedomain=&cookieduration=90&defaultcampaignid=6aa0cde2056bd43dd734e77c&regviewonce=false&script_id=6aa0d33e056bd43dd735a8f1',
     notes: Object.freeze([
       'Redirect mode (PropellerAds and most sources): the click is recorded by the 302 before you arrive; nothing on this page needs to run. Put ?clickid={clickid} on the lander URL in the campaign.',
@@ -44,7 +48,7 @@ export const TRACKERS = Object.freeze({
     cookie: 'voluum-clickid-store',
     // Multi-offer landers use /click/1, /click/2 … — not modelled yet.
     paths: Object.freeze({ click: 'click', preclick: null, postback: 'postback' }),
-    postback: Object.freeze({ clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid' }),
+    postback: Object.freeze({ clickid: 'cid', sum: 'payout', type: 'et', txid: 'txid', status: null }),
     campaignParam: null,
     modes: Object.freeze(['redirect']),
     // Redirect tracking needs no script. Voluum still recommends a lander script; paste it if you use one.

@@ -6,6 +6,7 @@ import { DEFAULT_CONFIG, STORAGE_KEY, CONFIG_URL_OVERRIDES } from './constants.j
 import { parseQuery } from './params.js';
 import { normalizeDomain } from './urls.js';
 import { trackerOf, isKnownTracker, modeOf, scriptModeActive } from './trackers.js';
+import { debugRequested } from './debug.js';
 
 /** Coerce anything into a complete, frozen config. Unknown keys are dropped. */
 export function withDefaults(raw) {
@@ -50,8 +51,13 @@ export function parseStoredConfig(json) {
   }
 }
 
-/** Let ?rt_domain= / ?rt_cmpid= / ?rt_offer= override stored values for one visit. */
+/**
+ * Let ?rt_domain= / ?rt_offer= … override stored values for one visit — but only together with
+ * ?debug=1. Without that gate any link could point a visitor's CTA at an arbitrary host (open
+ * redirect) or send postbacks elsewhere. Visitors never see the log, so nothing is reported.
+ */
 export function applyUrlOverrides(config, search) {
+  if (!debugRequested(search)) return Object.freeze({ config: withDefaults(config), applied: Object.freeze([]) });
   const params = parseQuery(search);
   const patch = Object.entries(CONFIG_URL_OVERRIDES).reduce(
     (acc, [param, field]) =>
@@ -79,9 +85,6 @@ export function validateConfig(config) {
       : null,
     normalizeDomain(current.trackingDomain) === ''
       ? 'Tracking domain is missing — CTA and postback URLs cannot be built.'
-      : null,
-    tracker.campaignParam && current.campaignId.trim() === ''
-      ? `Campaign ID (${tracker.campaignParam}) is missing.`
       : null,
     current.offerUrl.trim() === '' ? 'Offer URL is missing.' : null,
     scriptModeActive(current) && tracker.script === 'required' && !tracker.builtInScript && current.universalScript.trim() === ''

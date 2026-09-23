@@ -49,3 +49,21 @@ body.lp {
 /* Debug panels sit under the lander in the normal tool styling */
 .lp-debug { text-align: left; margin-top: 3rem; }
 .lp-debug .card { margin-bottom: 1.25rem; }
+
+/* Sign-up form */
+.lp-form { display: grid; gap: .9rem; max-width: 420px; margin: 0 auto 1rem; text-align: left; }
+.lp-form label { display: grid; gap: .35rem; font-size: .9rem; color: var(--lp-muted); }
+.lp-form input {
+  font: inherit; color: var(--lp-ink); background: rgba(255,255,255,.06);
+  border: 1px solid var(--lp-line); border-radius: 10px; padding: .8rem .95rem; width: 100%;
+}
+.lp-form input:focus { outline: 2px solid var(--lp-gold); outline-offset: 1px; }
+.lp-form .lp-cta { width: 100%; border: 0; cursor: pointer; margin-top: .3rem; }
+.lp-form .lp-cta:disabled { opacity: .6; cursor: progress; transform: none; }
+.lp-form-error { color: #ff9b8a; font-size: .88rem; margin: 0; }
+/* Preset panel (debug) */
+ol.presets { margin: 0; padding: 0; list-style: none; display: grid; gap: .5rem; }
+ol.presets li { display: grid; grid-template-columns: 11rem 1fr; gap: .8rem; align-items: center; }
+ol.presets .btn { justify-self: stretch; text-align: left; }
+.preset-verify { font-size: .8rem; color: var(--muted); font-family: var(--mono); }
+@media (max-width: 560px) { ol.presets li { grid-template-columns: 1fr; } }

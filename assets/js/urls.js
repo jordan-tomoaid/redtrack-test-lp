@@ -57,12 +57,12 @@ export function buildPreClickUrl(config, extra = {}) {
  * Map our field names onto the tracker's postback parameter names.
  * Fields the tracker does not support (postback.<field> === null) are dropped.
  */
-export function buildPostbackUrl(config, { clickid, sum, type, txid, extra = {} } = {}) {
+export function buildPostbackUrl(config, { clickid, sum, type, txid, status, extra = {} } = {}) {
   const tracker = trackerOf(config);
   if (String(clickid ?? '').trim() === '') {
     throw new Error('A click ID is required to build a postback URL.');
   }
-  const mapped = Object.entries({ clickid, sum, type, txid }).reduce((acc, [field, value]) => {
+  const mapped = Object.entries({ clickid, sum, type, status, txid }).reduce((acc, [field, value]) => {
     const key = tracker.postback[field];
     return key ? { ...acc, [key]: value } : acc;
   }, {});

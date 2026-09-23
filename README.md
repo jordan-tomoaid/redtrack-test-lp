@@ -17,7 +17,8 @@ screen, so a failure is never silent.
 | `lp.html` | **The page to point real traffic at.** Social casino lander: one CTA to the tracker's `/click`. Diagnostics hidden unless `?debug=1`. |
 | `index.html` | Landing page. Injects your universal script, resolves and persists the click ID, and builds `/click`, `/preclick` and direct-to-offer CTAs. |
 | `preclick.html` | Pre-lander for the two-step flow. Confirms the click ID survived the hop. |
-| `thankyou.html` | Fires conversions by type with an editable `sum`, and builds raw postback URLs you can copy. |
+| `signup.html` | **The Offer page.** Fake sign-up form; submitting fires the `reg` conversion from the browser (stand-in for the advertiser's S2S postback) and moves to the thank-you page whatever the tracker answers. Nothing typed is kept. With `?debug=1`: 8 parameter presets + free-form panel. |
+| `thankyou.html` | End of the funnel. Visitor page; sends nothing. `?debug=1` shows a free-form panel to re-send by hand. |
 | `settings.html` | Tracking domain, campaign ID, offer URL, default sum, and your pasted universal script. |
 
 Every page shows an **inbound parameter inspector** (tracking / sub / utm / other
@@ -61,13 +62,29 @@ click is recorded. This decides whether the tracker script on the page runs.
 Voluum supports `redirect` only. A pasted script is ignored in `redirect` mode and the
 log says so.
 
-### Testing a redirect source such as PropellerAds
+### The PropellerAds funnel (LANDING > OFFER)
 
-Nothing on this page is source-specific in redirect mode. In RedTrack:
+```
+PropellerAds pop  →  RedTrack campaign URL (trk.fourleafgo.com/<campaign>?ref_id=${SUBID}…)
+                  →  302  →  lp.html?clickid={clickid}          Lander: one CTA → /click
+                  →  302  →  signup.html?clickid={clickid}      Offer: fake sign-up → fires reg postback
+                          →  thankyou.html?clickid={clickid}    End: sends nothing
+```
 
-1. Campaign → lander URL: `https://jordan-tomoaid.github.io/redtrack-test-lp/lp.html?clickid={clickid}` (append `&debug=1` while testing to see the panels) (add `&sub1={sub1}…` for whatever you map from the source).
-2. Open the **campaign URL** (not this page directly). The inspector shows the click ID that RedTrack issued and every sub that arrived.
-3. On the landing page itself, **Fire a conversion** → **Send conversion**. The event log shows RedTrack's real HTTP status and reply (`HTTP 200 — status=1 message=OK`), because RedTrack's `/postback` allows cross-origin reads. Leave `type` empty on the first run. A **Copy curl** button gives the identical request for a terminal if you prefer.
+RedTrack setup: **Lander** = `https://jordan-tomoaid.github.io/redtrack-test-lp/lp.html?clickid={clickid}`,
+**Offer** = `https://jordan-tomoaid.github.io/redtrack-test-lp/signup.html?clickid={clickid}&refid={ref_id}&cost={cost}&s1={sub1}…`,
+campaign funnel **LANDING > OFFER**. PropellerAds' target URL is the RedTrack campaign URL, never a GitHub page.
+
+Conversion types the presets assume exist in the account: `reg` (ignore duplicates), `ftd` and `redeposit`
+(ignore duplicates by event id). `type` is case-sensitive; an unknown type lands in the default `conversion` column.
+
+Before real traffic: open `signup.html?clickid=<a real click id>&debug=1` and press the 8 presets top to
+bottom, then check RedTrack → Logs → Conversions (expect 6 rows) and S2S Postbacks (expect 6).
+
+**Ad blockers.** A browser extension can cancel the postback before it leaves (`(blocked:other)` in the
+network tab); the tracker never sees it. Visitors with blockers still reach the thank-you page, so the
+tracker's `reg` count is a floor, not the truth. That is the case for sending postbacks server-side in
+production — this harness fires from the browser only because there is no backend.
 
 ## Setup
 
@@ -85,7 +102,7 @@ is why it has to be pasted rather than shipped with this repo.
 
 ### Overriding settings for one visit
 
-Any page accepts `?rt_tracker=`, `?rt_mode=`, `?rt_domain=`, `?rt_cmpid=` and `?rt_offer=`, which is handy for
+Any page accepts `?rt_tracker=`, `?rt_mode=`, `?rt_domain=`, `?rt_cmpid=` and `?rt_offer=` — **only together with `?debug=1`**, so a crafted link cannot point a visitor's CTA or postback at another host. Handy for
 testing a second account without overwriting what you saved.
 
 ## Running a test

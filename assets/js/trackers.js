@@ -28,10 +28,9 @@ export const TRACKERS = Object.freeze({
     script: 'required',
     // Shipped statically in index / preclick / lp as <script type="text/plain" data-tracker-script="redtrack">.
     // Must match that tag's src; page.js warns if it drifts.
-    // TODO: this is the OLD account's universal script (wmipr, defaultcampaignid 6aa0cde2…). Inert in
-    // redirect mode, so harmless for PropellerAds; replace when the Meta no-redirect flow is rebuilt
-    // on the new account.
-    builtInScript: 'https://wmipr.ttrk.io/uniclick.js?attribution=lastpaid&cookiedomain=&cookieduration=90&defaultcampaignid=6aa0cde2056bd43dd734e77c&regviewonce=false&script_id=6aa0d33e056bd43dd735a8f1',
+    // /click-support variant (unilpclick.js) generated on the new account — Tools → Scripts
+    // "test-lp universal (click support)", default campaign "default - organic (universal script)".
+    builtInScript: 'https://trk.fourleafgo.com/unilpclick.js?attribution=lastpaid&cookiedomain=&cookieduration=90&defaultcampaignid=6ac5be3e7d94834b760cfed1&regviewonce=false&script_id=6ac5be8582b0a2acf62821b1',
     notes: Object.freeze([
       'Redirect mode (PropellerAds and most sources): the click is recorded by the 302 before you arrive; nothing on this page needs to run. Put ?clickid={clickid} on the lander URL in the campaign.',
       'Script mode (Meta, no-redirect): the universal script on this page records the visit and sets rtkclickid-store; switch mode in settings only for that flow.',

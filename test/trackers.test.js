@@ -26,7 +26,7 @@ test('RedTrack profile keeps the names its docs mandate', () => {
   assert.equal(t.campaignParam, 'cmpid');
   assert.equal(t.paths.preclick, 'preclick');
   assert.equal(t.outParam, 'clickid', 'lander URLs use clickid, not the rtkcid alias');
-  assert.match(t.builtInScript, /^https:\/\/wmipr\.ttrk\.io\/uniclick\.js\?/);
+  assert.match(t.builtInScript, /^https:\/\/trk\.fourleafgo\.com\/unilpclick\.js\?/);
 });
 
 test('every profile declares builtInScript explicitly (string or null)', () => {
